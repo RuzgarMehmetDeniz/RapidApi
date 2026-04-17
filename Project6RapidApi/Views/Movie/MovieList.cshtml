@@ -1,0 +1,178 @@
+﻿@model List<ImdbMovieDto>
+
+@{
+    Layout = null;
+    ViewData["Title"] = "IMDB Top 100";
+}
+
+<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        /* Modern Gradient Arka Plan */
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        background-attachment: fixed;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: #ffffff;
+        padding: 50px 0;
+    }
+
+    .movie-container {
+        background: rgba(255, 255, 255, 0.05); /* Cam efekti (Glassmorphism) */
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+        font-weight: 800;
+        letter-spacing: -1px;
+        background: linear-gradient(to right, #fff, #f5c518);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .table-custom {
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+        .table-custom thead th {
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            padding-left: 20px;
+        }
+
+        .table-custom tbody tr {
+            background-color: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+
+            .table-custom tbody tr:hover {
+                background-color: rgba(255, 255, 255, 0.08);
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        .table-custom td {
+            vertical-align: middle !important;
+            border: none;
+            padding: 15px 20px;
+            color: #e0e0e0;
+        }
+
+            /* Sol taraftaki ilk hücrenin köşesini yuvarla */
+            .table-custom td:first-child,
+            .table-custom th:first-child {
+                border-top-left-radius: 12px;
+                border-bottom-left-radius: 12px;
+            }
+
+            /* Sağ taraftaki son hücrenin köşesini yuvarla */
+            .table-custom td:last-child,
+            .table-custom th:last-child {
+                border-top-right-radius: 12px;
+                border-bottom-right-radius: 12px;
+            }
+
+    .movie-poster {
+        width: 70px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    tr:hover .movie-poster {
+        transform: scale(1.1);
+    }
+
+    .rating-pill {
+        background: rgba(245, 197, 24, 0.15);
+        color: #f5c518;
+        border: 1px solid rgba(245, 197, 24, 0.3);
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .btn-action {
+        background: #f5c518;
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 20px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-action:hover {
+            background: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 197, 24, 0.4);
+            color: #000;
+        }
+
+    .title-text {
+        font-size: 1.15rem;
+        font-weight: 600;
+        display: block;
+    }
+
+    .subtitle-text {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="container">
+    <div class="movie-container">
+        <div class="d-flex align-items-center justify-content-between mb-5">
+            <h2 class="m-0">🎬 IMDB TOP 100</h2>
+            <div class="text-end">
+                <div class="subtitle-text text-uppercase">Son Güncelleme</div>
+                <div class="fw-bold text-white">Nisan 2026</div>
+            </div>
+        </div>
+
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th>Görsel</th>
+                    <th>Film Detayı</th>
+                    <th class="text-center">Skor</th>
+                    <th class="text-end">Bağlantı</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="@item.image" class="movie-poster" alt="poster" />
+                        </td>
+                        <td>
+                            <span class="title-text">@item.title</span>
+                            <span class="subtitle-text">IMDB Özel Seçki</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="rating-pill">⭐ @item.rating</span>
+                        </td>
+                        <td class="text-end">
+                            <a href="@item.imdb_link" target="_blank" class="btn-action">
+                                İncele
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
