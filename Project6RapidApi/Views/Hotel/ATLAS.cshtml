@@ -1,0 +1,506 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="tr">
+
+    @await Component.InvokeAsync("_AtlasHeadComponentPartial")
+
+<body>
+
+    <!-- Custom cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursor-ring"></div>
+
+    <!-- NAV -->
+    @await Component.InvokeAsync("_AtlasNavbarComponentPartial")
+
+    <!-- MAIN PAGE -->
+    <div id="main-page">
+
+        <!-- HERO -->
+        @await Component.InvokeAsync("_AtlasHeroComponentPartial")
+
+        <!-- MARQUEE -->
+        <div class="marquee-strip">
+            <div class="marquee-track" id="marquee-track">
+                <!-- items will be doubled by JS -->
+            </div>
+        </div>
+
+        <!-- SEARCH -->
+        @await Component.InvokeAsync("_AtlasSearchComponentPartial")
+
+        <!-- MAIN CONTENT -->
+        <div class="page-main">
+
+            <!-- LISTING -->
+            <div class="sec-head">
+                <div>
+                    <div class="sec-eyebrow">Editör Seçimi</div>
+                    <h2 class="sec-title" id="listing-title">Bu Sezon <em>Gitmeniz Gereken</em> Oteller</h2>
+                </div>
+                <div class="sec-meta" id="listing-meta">8 Destinasyon · Global Koleksiyon</div>
+            </div>
+
+            <div class="hotel-grid" id="hotel-grid">
+                <!-- populated by JS -->
+            </div>
+
+            <!-- DASHBOARD -->
+            @await Component.InvokeAsync("_AtlasBottomPanelComponentPartial")
+
+        </div><!-- /page-main -->
+        @await Component.InvokeAsync("_AtlasFooterComponentPartial")
+
+    </div><!-- /main-page -->
+    <!-- DETAIL OVERLAY -->
+    <div id="detail-overlay">
+        <div class="detail-header">
+            <button class="detail-back" onclick="closeDetail()">← Listeye Dön</button>
+            <a class="nav-logo" href="#" onclick="closeDetail()">ATL<span style="color:var(--red)">A</span>S</a>
+            <button class="detail-book-btn" onclick="showToast('Rezervasyon sayfası açılıyor...')">Rezervasyon Yap</button>
+        </div>
+
+        <!-- PHOTO GALLERY -->
+        <div class="photo-gallery" id="photo-gallery">
+            <img class="gallery-main" id="gal-main" src="" alt="">
+            <img id="gal-2" src="" alt="">
+            <img id="gal-3" src="" alt="">
+        </div>
+
+        <!-- DETAIL BODY -->
+        <div class="detail-body">
+            <div class="detail-main">
+                <div class="detail-cat" id="detail-cat">Premium · Şehir Oteli</div>
+                <h1 class="detail-hotel-name" id="detail-hname">—</h1>
+
+                <div class="detail-meta-row">
+                    <div class="detail-loc" id="detail-hloc">📍 —</div>
+                    <div class="detail-score-box">
+                        <span class="num" id="detail-hscore">—</span>
+                        <span class="lbl">Misafir<br>Puanı</span>
+                    </div>
+                    <div class="detail-stars-box" id="detail-hstars"></div>
+                </div>
+
+                <p class="detail-desc-text" id="detail-hdesc">—</p>
+
+                <div class="detail-features-title">Öne Çıkan Özellikler</div>
+                <div class="feat-grid" id="detail-feats"></div>
+
+                <div class="detail-features-title">Giriş / Çıkış Saatleri</div>
+                <div class="check-row">
+                    <div class="check-box">
+                        <div class="check-lbl">Check-in</div>
+                        <div class="check-time-val">14:00</div>
+                    </div>
+                    <div class="check-box">
+                        <div class="check-lbl">Check-out</div>
+                        <div class="check-time-val">12:00</div>
+                    </div>
+                </div>
+
+                <div class="detail-features-title">Konum</div>
+                <div class="map-box">
+                    <div class="map-pin-ico">📍</div>
+                    <div class="map-coords-txt" id="detail-hcoords">—</div>
+                </div>
+            </div>
+
+            <div class="detail-sidebar">
+                <div class="booking-title">Rezervasyon Özeti</div>
+                <div class="price-hero">
+                    <div class="price-hero-amount" id="bk-price">$—</div>
+                    <div class="price-hero-label">gecelik başlangıç fiyatı</div>
+                </div>
+                <div class="booking-inputs">
+                    <div class="book-field">
+                        <div class="book-field-label">Giriş Tarihi</div>
+                        <div class="book-field-val" id="bk-in">—</div>
+                    </div>
+                    <div class="book-field">
+                        <div class="book-field-label">Çıkış Tarihi</div>
+                        <div class="book-field-val" id="bk-out">—</div>
+                    </div>
+                    <div class="book-field">
+                        <div class="book-field-label">Misafir / Oda</div>
+                        <div class="book-field-val" id="bk-guests">—</div>
+                    </div>
+                </div>
+                <div class="total-row">
+                    <div class="total-lbl">Toplam Tutar</div>
+                    <div class="total-amt" id="bk-total">$—</div>
+                </div>
+                <button class="book-cta" onclick="showToast('Ödeme sayfasına yönlendiriliyorsunuz...')">Hemen Rezervasyon Yap</button>
+                <div class="booking-notes">
+                    <div class="booking-note">Ücretsiz iptal — 48 saat öncesine kadar</div>
+                    <div class="booking-note">Fiyat garantisi — En iyi fiyat</div>
+                    <div class="booking-note">Anlık onay — Hemen bildirim</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        // ============================
+        // DATA
+        // ============================
+        const HOTELS = [
+          {
+            id:1, featured:true,
+            name:"Aman Tokyo",
+            city:"Tokyo", country:"Japonya",
+            stars:5, rating:9.6, price:820,
+            tag:"Editör Seçimi",
+            img:"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=900&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1400&q=80",
+              "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=700&q=80",
+              "https://images.unsplash.com/photo-1527838832700-5059252407fa?w=700&q=80"
+            ],
+            desc:"Tokyo'nun kalbi Otemachi'de, 33 katlı gökdelenin zirvesinde yer alan Aman Tokyo, Japon estetiği ve çağdaş lüksün kusursuz birleşimi. Washi kağıdı duvarlar, bambu tavanlar ve muhteşem Fuji Dağı manzarasıyla her detail özenle tasarlanmış. Aman Spa'nın 2.400 m² terapi alanı ve havuzu ile Tokyo'nun kozmopolit enerjisini kendinize göre hissedebilirsiniz.",
+            amenities:["🗼 Fuji Manzarası","♨️ Aman Spa","🧘 Zen Bahçesi","🍣 Kaiseki Mutfak","🎌 Çay Seremonisi","🏙️ Şehir Merkezi"],
+            lat:"35.6762° N", lng:"139.6503° E"
+          },
+          {
+            id:2,
+            name:"Hôtel de Crillon",
+            city:"Paris", country:"Fransa",
+            stars:5, rating:9.5, price:950,
+            tag:"Tarihî",
+            img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1400&q=80",
+              "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=700&q=80",
+              "https://images.unsplash.com/photo-1615460549969-36fa19521a4f?w=700&q=80"
+            ],
+            desc:"Place de la Concorde üzerinde, 1758'den bu yana Fransız zarafetinin sembolü. Marie Antoinette'in piyano çaldığı odalarda konaklama imkânı, Michelin yıldızlı Les Ambassadeurs restoranı ve Les Grandes Tables dünya standartlarında servis. Tarihin derinliğini çağdaş lüksle buluşturan bu saray, Paris'in en ikonik adresi.",
+            amenities:["🏛️ Tarihî Bina","🍽️ Les Ambassadeurs","💆 Spa Chanel","🥐 Fransız Kahvaltısı","🎭 Concierge","🛁 Mermer Banyo"],
+            lat:"48.8652° N", lng:"2.3215° E"
+          },
+          {
+            id:3,
+            name:"Capella Ubud",
+            city:"Ubud", country:"Endonezya",
+            stars:5, rating:9.8, price:1100,
+            tag:"En Yüksek Puan",
+            img:"https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1400&q=80",
+              "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=700&q=80",
+              "https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?w=700&q=80"
+            ],
+            desc:"Bali'nin tropikal ormanları ortasında, bamboodan inşa edilmiş çadır-villalarla doğayla bütünleşen bu resort, eko-lüksün yeni standardını belirliyor. Sabah meditasyonu, tarlada çay toplama ve pirinç ekimi deneyimleriyle gerçek Balili yaşantıyı tattırıyor. Her çadırın altından akan nehir sesi eşliğinde uyumak unutulmaz bir deneyim.",
+            amenities:["🌿 Eko Villaları","🧘 Sabah Meditasyon","🍃 Çay Toplama","🌊 Nehir Havuzu","🏹 Orman Yürüyüşü","🕯️ Spa Ritüelleri"],
+            lat:"8.5069° S", lng:"115.2625° E"
+          },
+          {
+            id:4,
+            name:"Singita Grumeti",
+            city:"Serengeti", country:"Tanzanya",
+            stars:5, rating:9.4, price:2800,
+            tag:"Ultra Lüks",
+            img:"https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1400&q=80",
+              "https://images.unsplash.com/photo-1549366021-9f761d040a94?w=700&q=80",
+              "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80"
+            ],
+            desc:"Serengeti'nin vahşi kalbinde, özel yönetimindeki 350,000 dönümlük rezervde sunulan bu deneyim, lüks safarinin zirvesi. Uçan doktorlar, özel veteriner ekibi ve conservation uzmanlarıyla eşsiz vahşi yaşam deneyimi. Gün doğumunda aslan ailelerini izlemek ve akşam Masai dansçılarıyla açık havada yemek yemek ömür boyu hatırlanır.",
+            amenities:["🦁 Özel Rezerv","🌅 Bush Dinner","🐘 Big 5","🔭 Yıldız Gözlemi","🎪 Masai Kültür","☀️ Güneş Doğumu"],
+            lat:"2.0546° S", lng:"34.8337° E"
+          },
+          {
+            id:5,
+            name:"The Brando",
+            city:"Tetiaroa", country:"Fransız Polinezyası",
+            stars:5, rating:9.7, price:3200,
+            tag:"Gizli Cennet",
+            img:"https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?w=600&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?w=1400&q=80",
+              "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=700&q=80",
+              "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=700&q=80"
+            ],
+            desc:"Marlon Brando'nun özel adası Tetiaroa'da, yalnızca 35 villa ile münhasır hizmet. Kısmen güneş enerjisiyle çalışan bu sürdürülebilir resort, doğayla uyum içinde ultra-lüks yaşam standartı sunuyor. Özel mercan resifi, sea turtle habitatı ve yeşim rengindeki lagünüyle gezegenin gizli cenneti.",
+            amenities:["🏝️ Özel Ada","🐢 Kaplumbağa Koruması","🌺 Overwater Villa","🤿 Mercan Resifi","🎣 Özel Tekne","🌴 Palmiye Ormanı"],
+            lat:"17.0167° S", lng:"149.5833° W"
+          },
+          {
+            id:6,
+            name:"Badrutt's Palace",
+            city:"St. Moritz", country:"İsviçre",
+            stars:5, rating:9.3, price:1450,
+            tag:"Kış Efsanesi",
+            img:"https://images.unsplash.com/photo-1548013146-72479768bada?w=600&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1548013146-72479768bada?w=1400&q=80",
+              "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=700&q=80",
+              "https://images.unsplash.com/photo-1551524164-6cf2ac531400?w=700&q=80"
+            ],
+            desc:"1896'dan bu yana dünyanın en seçkin kayakçılarını ağırlayan bu saray, St. Moritz Gölü kıyısında ihtişamıyla dikkat çekiyor. Kendi özel kayak pistleri, legendar King's Social Club ve villa'lardan Engadin vadisinin panoramik manzarası eşliğinde kış manzarasının tadını çıkarın.",
+            amenities:["⛷️ Özel Pist","🏔️ Engadin Manzarası","🎰 King's Club","🛷 Kızak Turu","🍫 İsviçre Çikolatası","🧖 Alpine Spa"],
+            lat:"46.4974° N", lng:"9.8443° E"
+          },
+          {
+            id:7,
+            name:"One&Only Royal Mirage",
+            city:"Dubai", country:"BAE",
+            stars:5, rating:9.2, price:680,
+            tag:"Arap Lüksü",
+            img:"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1400&q=80",
+              "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=700&q=80",
+              "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=700&q=80"
+            ],
+            desc:"65 dönümlük tropikal bahçeler arasında, Arap mimarisinin incelikli detaylarıyla süslenmiş bu sahil resortunda, Burj Al Arab'ın siluetine bakarak kahve içebilirsiniz. Onunla birlikte Amara Spa'nın hammam ritüelleri ve Celebrities restoranının dünya mutfağı deneyimi, Dubai'nin ruhunu en güzel haliyle yansıtıyor.",
+            amenities:["🏖️ Özel Kumsal","🔮 Amara Spa","🌙 Gece Çarşısı","🐎 At Binme","🎆 Burj Manzarası","🫙 Hammam"],
+            lat:"25.1021° N", lng:"55.1370° E"
+          },
+          {
+            id:8,
+            name:"Fogo Island Inn",
+            city:"Fogo Island", country:"Kanada",
+            stars:5, rating:9.6, price:2600,
+            tag:"Mimarlık İkonu",
+            img:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80",
+            imgs:[
+              "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1400&q=80",
+              "https://images.unsplash.com/photo-1522083165195-3424ed129620?w=700&q=80",
+              "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=700&q=80"
+            ],
+            desc:"Newfoundland sahilinde yükselen bu ikonik otel, çarpıcı mimarisi ve toplumsal işletme modeliyle dünyada eşi bulunmayan bir deneyim sunuyor. Atlantik Okyanusu'na bakan stüdyolar, buzdağlarını izleyebileceğiniz özel platformlar ve tüm geliri adanın sakinlerine aktarılan sürdürülebilir lüks anlayışı ile fark yaratıyor.",
+            amenities:["🧊 Buzdağı İzleme","🎨 Sanatçı Stüdyoları","🌊 Atlantik Manzarası","🦞 Istakoz Taze","🌨️ Kuzey Işıkları","🎣 Geleneksel Balıkçılık"],
+            lat:"49.6556° N", lng:"54.1693° W"
+          }
+        ];
+
+        let currentHotel = null;
+
+        // ============================
+        // INIT
+        // ============================
+        window.addEventListener('DOMContentLoaded', () => {
+          initDates();
+          renderHotels(HOTELS);
+          buildMarquee();
+          buildMiniCharts();
+          initWeather();
+          initCursor();
+        });
+
+        function initDates() {
+          const t = new Date();
+          const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x.toISOString().split('T')[0]; };
+          document.getElementById('checkin').value = addDays(t, 7);
+          document.getElementById('checkout').value = addDays(t, 14);
+        }
+
+        // ============================
+        // RENDER HOTELS
+        // ============================
+        function renderHotels(list) {
+          const grid = document.getElementById('hotel-grid');
+          grid.innerHTML = list.map((h, i) => {
+            const feat = i === 0;
+            return `
+            <div class="hotel-card ${feat ? 'hotel-card-featured' : ''} anim" style="animation-delay:${i*0.06}s" onclick="openDetail(${h.id})">
+              <div class="cat-tag">${h.tag}</div>
+              <div class="rating-badge">
+                <span class="rating-badge-num">${h.rating}</span>
+                <span class="rating-badge-label">Puan</span>
+              </div>
+              <img class="hotel-card-img" src="${h.img}" alt="${h.name}" loading="lazy">
+              <div class="hotel-card-body">
+                <div class="hotel-card-number">No. ${String(i+1).padStart(2,'0')} · ${h.country.toUpperCase()}</div>
+                <div class="hotel-card-name">${h.name}</div>
+                <div class="hotel-card-loc">📍 ${h.city}, ${h.country}</div>
+                <div class="hotel-card-bottom">
+                  <div class="hotel-card-price">
+                    <span class="price-amount">$${h.price}</span>
+                    <span class="price-night"> /gece</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:16px">
+                    <div class="hotel-card-stars">${renderStars(h.stars)}</div>
+                    <button class="hotel-card-btn" onclick="openDetail(${h.id})">İncele →</button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+          }).join('');
+        }
+
+        function renderStars(n) {
+          return [1,2,3,4,5].map(i => `<span class="star ${i<=n?'on':''}">★</span>`).join('');
+        }
+
+        // ============================
+        // SEARCH
+        // ============================
+        function doSearch() {
+          const city = document.getElementById('search-city').value.trim();
+          const title = document.getElementById('listing-title');
+          const meta = document.getElementById('listing-meta');
+          if (city) {
+            title.innerHTML = `<em>${city}</em> için Otel Koleksiyonu`;
+            meta.textContent = `${HOTELS.length} Destinasyon · API Entegrasyonuna Hazır`;
+          } else {
+            title.innerHTML = `Bu Sezon <em>Gitmeniz Gereken</em> Oteller`;
+            meta.textContent = `8 Destinasyon · Global Koleksiyon`;
+          }
+          renderHotels(HOTELS);
+          showToast(`"${city || 'Tüm destinasyonlar'}" için sonuçlar listelendi`);
+          document.getElementById('hotel-grid').scrollIntoView({ behavior:'smooth', block:'start' });
+        }
+
+        function scrollToSearch() {
+          document.getElementById('search-section').scrollIntoView({ behavior:'smooth' });
+        }
+
+        // ============================
+        // DETAIL
+        // ============================
+        function openDetail(id) {
+          const h = HOTELS.find(x => x.id === id);
+          if (!h) return;
+          currentHotel = h;
+
+          document.getElementById('gal-main').src = h.imgs[0];
+          document.getElementById('gal-2').src = h.imgs[1] || h.imgs[0];
+          document.getElementById('gal-3').src = h.imgs[2] || h.imgs[0];
+          document.getElementById('detail-cat').textContent = `${h.stars}★ Premium · ${h.tag}`;
+          document.getElementById('detail-hname').textContent = h.name;
+          document.getElementById('detail-hloc').textContent = `📍 ${h.city}, ${h.country}`;
+          document.getElementById('detail-hdesc').textContent = h.desc;
+          document.getElementById('detail-hscore').textContent = h.rating;
+          document.getElementById('detail-hstars').innerHTML = renderStars(h.stars);
+          document.getElementById('detail-hcoords').textContent = `${h.lat}, ${h.lng}`;
+          document.getElementById('bk-price').textContent = `$${h.price.toLocaleString()}`;
+
+          const ci = document.getElementById('checkin').value;
+          const co = document.getElementById('checkout').value;
+          const gs = document.getElementById('guests').options[document.getElementById('guests').selectedIndex].text;
+          document.getElementById('bk-in').textContent = ci ? fmtDate(ci) : '—';
+          document.getElementById('bk-out').textContent = co ? fmtDate(co) : '—';
+          document.getElementById('bk-guests').textContent = gs;
+
+          if (ci && co) {
+            const nights = Math.max(1, Math.round((new Date(co)-new Date(ci))/(86400000)));
+            document.getElementById('bk-total').textContent = `$${(h.price*nights).toLocaleString()}`;
+          }
+
+          document.getElementById('detail-feats').innerHTML = h.amenities.map(a => `
+            <div class="feat-item">
+              <div class="feat-ico">${a.split(' ')[0]}</div>
+              <div class="feat-txt">${a.split(' ').slice(1).join(' ')}</div>
+            </div>`).join('');
+
+          const ov = document.getElementById('detail-overlay');
+          ov.style.display = 'block';
+          ov.scrollTop = 0;
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeDetail() {
+          document.getElementById('detail-overlay').style.display = 'none';
+          document.body.style.overflow = '';
+        }
+
+        function fmtDate(s) {
+          return new Date(s+'T00:00:00').toLocaleDateString('tr-TR', {day:'numeric',month:'long',year:'numeric'});
+        }
+
+        // ============================
+        // MARQUEE
+        // ============================
+        function buildMarquee() {
+          const items = ['Paris','Tokyo','Dubai','Santorini','Maldivler','New York','Bali','İsviçre','Sydney','Marakeş','Havana','İzlanda'];
+          const html = items.map(i => `<span class="marquee-item">${i}<span class="marquee-dot"></span></span>`).join('');
+          const track = document.getElementById('marquee-track');
+          track.innerHTML = html + html; // duplicate for seamless loop
+        }
+
+        // ============================
+        // MINI CHARTS
+        // ============================
+        function buildMiniCharts() {
+          const build = (id, trend) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            let v = 50, h = '';
+            for (let i = 0; i < 24; i++) {
+              v = Math.max(10, Math.min(90, v + (Math.random()-0.48+trend*0.05)*10));
+              const active = i > 18 ? 'active' : '';
+              h += `<div class="mini-bar ${active}" style="height:${v}%"></div>`;
+            }
+            el.innerHTML = h;
+          };
+          build('btc-chart', 1);
+          build('eth-chart', -0.5);
+        }
+
+        // ============================
+        // WEATHER
+        // ============================
+        function initWeather() {
+          const h = new Date().getHours();
+          const ico = document.getElementById('w-ico');
+          const desc = document.getElementById('w-desc');
+          if (h >= 6 && h < 10)      { ico.textContent = '🌅'; desc.textContent = 'Sabah Güneşli'; }
+          else if (h >= 10 && h < 17){ ico.textContent = '⛅'; desc.textContent = 'Parçalı Bulutlu'; }
+          else if (h >= 17 && h < 20){ ico.textContent = '🌆'; desc.textContent = 'Akşam Bulutu'; }
+          else                        { ico.textContent = '🌙'; desc.textContent = 'Açık Gece'; }
+        }
+
+        // ============================
+        // CUSTOM CURSOR
+        // ============================
+        function initCursor() {
+          const c = document.getElementById('cursor');
+          const r = document.getElementById('cursor-ring');
+          let mx=0, my=0, rx=0, ry=0;
+          document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; c.style.left=mx+'px'; c.style.top=my+'px'; });
+          const anim = () => {
+            rx += (mx-rx)*0.12;
+            ry += (my-ry)*0.12;
+            r.style.left=rx+'px';
+            r.style.top=ry+'px';
+            requestAnimationFrame(anim);
+          };
+          anim();
+
+          document.querySelectorAll('button, a, .hotel-card, .curr-row, .feat-item').forEach(el => {
+            el.addEventListener('mouseenter', () => { c.style.transform='translate(-50%,-50%) scale(2)'; r.style.width='60px'; r.style.height='60px'; r.style.opacity='0.3'; });
+            el.addEventListener('mouseleave', () => { c.style.transform='translate(-50%,-50%) scale(1)'; r.style.width='36px'; r.style.height='36px'; r.style.opacity='0.5'; });
+          });
+        }
+
+        // ============================
+        // TOAST
+        // ============================
+        function showToast(msg) {
+          const t = document.getElementById('toast');
+          t.textContent = msg;
+          t.classList.add('show');
+          setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // Keyboard
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') closeDetail();
+        });
+
+        // Live currency pulse
+        setInterval(() => {
+          document.querySelectorAll('.curr-val').forEach(el => {
+            const v = parseFloat(el.textContent.replace('₺',''));
+            el.textContent = '₺' + (v + (Math.random()-0.5)*0.03).toFixed(2);
+          });
+        }, 3500);
+    </script>
+</body>
+</html>

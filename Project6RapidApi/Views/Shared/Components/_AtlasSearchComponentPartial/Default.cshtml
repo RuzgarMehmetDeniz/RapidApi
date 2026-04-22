@@ -1,0 +1,29 @@
+﻿<div class="search-section" id="search-section">
+    <div class="search-label">Otel Arama</div>
+    <div class="search-row">
+        <div class="sf">
+            <div class="sf-label">Destinasyon</div>
+            <input type="text" id="search-city" placeholder="Şehir veya otel adı...">
+        </div>
+        <div class="sf">
+            <div class="sf-label">Giriş</div>
+            <input type="date" id="checkin" style="color-scheme:light;">
+        </div>
+        <div class="sf">
+            <div class="sf-label">Çıkış</div>
+            <input type="date" id="checkout" style="color-scheme:light;">
+        </div>
+        <div class="sf">
+            <div class="sf-label">Misafir</div>
+            <select id="guests">
+                <option>1 Misafir, 1 Oda</option>
+                <option selected>2 Misafir, 1 Oda</option>
+                <option>3 Misafir, 2 Oda</option>
+                <option>4 Misafir, 2 Oda</option>
+            </select>
+        </div>
+        <button class="search-submit" onclick="doSearch()">
+            <span>⌕</span> Ara
+        </button>
+    </div>
+</div>
