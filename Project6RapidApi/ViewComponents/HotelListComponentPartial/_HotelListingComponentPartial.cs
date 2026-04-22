@@ -19,7 +19,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date=2026-05-01&departure_date=2026-05-08&adults=1&room_qty=1&page_number=1&units=metric&currency_code=USD"),
+                RequestUri = new Uri("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date=2026-05-01&departure_date=2026-05-08&adults=1&room_qty=1&page_number=1&units=metric&currency_code=EUR"),
                 Headers =
                 {
                     { "x-rapidapi-key", "bee51651fdmshbbc375389ee61b2p180f6djsn683e69404831" },

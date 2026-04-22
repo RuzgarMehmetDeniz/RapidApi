@@ -1,29 +1,14 @@
-﻿<div class="marquee-strip">
+﻿@model List<string>
+
+<div class="marquee-strip">
     <div class="marquee-track">
-        <span class="marquee-item">Paris<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Tokyo<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Dubai<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Santorini<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Maldivler<span class="marquee-dot"></span></span>
-        <span class="marquee-item">New York<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Bali<span class="marquee-dot"></span></span>
-        <span class="marquee-item">İsviçre<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Sydney<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Marakeş<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Havana<span class="marquee-dot"></span></span>
-        <span class="marquee-item">İzlanda<span class="marquee-dot"></span></span>
-        <!-- duplicate for seamless loop -->
-        <span class="marquee-item">Paris<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Tokyo<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Dubai<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Santorini<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Maldivler<span class="marquee-dot"></span></span>
-        <span class="marquee-item">New York<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Bali<span class="marquee-dot"></span></span>
-        <span class="marquee-item">İsviçre<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Sydney<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Marakeş<span class="marquee-dot"></span></span>
-        <span class="marquee-item">Havana<span class="marquee-dot"></span></span>
-        <span class="marquee-item">İzlanda<span class="marquee-dot"></span></span>
+        @* Listeyi 3 kez tekrarlatıyoruz ki ekran hiç boş kalmasın *@
+        @for (int i = 0; i < 3; i++)
+        {
+            @foreach (var city in Model)
+            {
+                <span class="marquee-item">@city.ToUpper()<span class="marquee-dot"></span></span>
+            }
+        }
     </div>
 </div>
