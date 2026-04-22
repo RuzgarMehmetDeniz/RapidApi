@@ -1,0 +1,54 @@
+﻿<script>
+    // Dates
+    const t = new Date();
+    const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x.toISOString().split('T')[0]; };
+    document.getElementById('checkin').value = addDays(t,7);
+    document.getElementById('checkout').value = addDays(t,14);
+
+    // Search — just scroll + toast
+    function doSearch() {
+      const city = document.getElementById('search-city').value.trim();
+      showToast(city ? `"${city}" için arama yapıldı` : 'Tüm destinasyonlar listelendi');
+    }
+
+    // Weather icon based on hour
+    const h = new Date().getHours();
+    const wIco = document.getElementById('w-ico');
+    const wDesc = document.getElementById('w-desc');
+    if (h>=6&&h<10){wIco.textContent='🌅';wDesc.textContent='Sabah Güneşli';}
+    else if(h>=10&&h<17){wIco.textContent='⛅';wDesc.textContent='Parçalı Bulutlu';}
+    else if(h>=17&&h<20){wIco.textContent='🌆';wDesc.textContent='Akşam Bulutu';}
+    else{wIco.textContent='🌙';wDesc.textContent='Açık Gece';}
+
+    // Mini charts
+    ['btc-chart','eth-chart'].forEach((id,idx) => {
+      const el=document.getElementById(id); if(!el) return;
+      let v=50,html='';
+      for(let i=0;i<24;i++){v=Math.max(10,Math.min(90,v+(Math.random()-.48+(idx?-.03:.05))*10));html+=`<div class="mini-bar ${i>18?'active':''}" style="height:${v}%"></div>`;}
+      el.innerHTML=html;
+    });
+
+    // Currency live pulse
+    setInterval(() => {
+      ['usd-val','eur-val','gbp-val','rub-val'].forEach(id => {
+        const el=document.getElementById(id); if(!el) return;
+        const v=parseFloat(el.textContent.replace('₺',''));
+        el.textContent='₺'+(v+(Math.random()-.5)*.03).toFixed(2);
+      });
+    }, 3500);
+
+    // Cursor
+    const cur=document.getElementById('cursor'), ring=document.getElementById('cursor-ring');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+    const animC=()=>{rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animC);};animC();
+    document.querySelectorAll('a,button,.hotel-card,.curr-row').forEach(el=>{
+      el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2)';ring.style.width='60px';ring.style.height='60px';ring.style.opacity='.3';});
+      el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';ring.style.width='36px';ring.style.height='36px';ring.style.opacity='.5';});
+    });
+
+    function showToast(msg){
+      const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),2800);
+    }
+</script>

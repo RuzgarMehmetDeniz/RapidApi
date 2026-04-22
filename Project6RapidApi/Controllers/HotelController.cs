@@ -16,7 +16,7 @@ namespace Project6RapidApi.Controllers
         {
             return View();
         }
-        public IActionResult Hoteldetail()
+        public IActionResult Hoteldetail(int id)
         {
             return View();
         }

@@ -1,0 +1,41 @@
+﻿@model ResultHotelDto
+
+<section class="hero">
+    <div class="hero-left">
+        <div class="hero-left-texture"></div>
+        <div class="hero-issue anim d1">Atlas Dergisi — Bahar 2026 Koleksiyonu</div>
+        <div class="hero-text">
+            <div class="hero-kicker anim d2">Dünyanın En İyi Adresleri</div>
+            <h1 class="hero-headline anim d3">Her Seyahat<br>Bir <em>Hikayedir.</em></h1>
+            <p class="hero-body anim d4">Editörlerimizin bizzat ziyaret ettiği, seçkin misafirlerin tercih ettiği dünya genelinde 50.000'den fazla premium otel arasından sizin hikayenizi yazacak destinasyonu keşfedin.</p>
+            <div class="hero-actions anim d5">
+                <a class="btn-primary" href="#listing-title">Otelleri Keşfet →</a>
+                <button class="btn-secondary">Dergiyi İncele</button>
+            </div>
+        </div>
+        <div class="hero-bottom anim" style="animation-delay:.6s">
+            <div class="hero-stat"><div class="hero-stat-n">50K+</div><div class="hero-stat-l">Seçilmiş Otel</div></div>
+            <div class="hero-stat"><div class="hero-stat-n">180+</div><div class="hero-stat-l">Destinasyon</div></div>
+            <div class="hero-stat"><div class="hero-stat-n">15Y</div><div class="hero-stat-l">Editöryal Deneyim</div></div>
+        </div>
+    </div>
+
+    @if (Model != null)
+    {
+        <div class="hero-right">
+            @* API'den gelen görseli basıyoruz, görsel yoksa Unsplash görseli kalıyor *@
+            <img src="@(Model.photoUrls != null && Model.photoUrls.Length > 0 ? Model.photoUrls[0].Replace("square60", "square900") : "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&q=85")"
+                 alt="@Model.name">
+
+            <div class="hero-right-overlay"></div>
+
+            <a class="hero-tag" href="/Hotel/Hoteldetail/@Model.hotel_id">
+                <div class="hero-tag-label">Bu Haftanın Seçimi</div>
+                <div class="hero-tag-title">@Model.name</div>
+                <div class="hero-tag-price">
+                    @Model.priceBreakdown.grossPrice.currency @Model.priceBreakdown.grossPrice.value.ToString("N0") / gece · @Model.wishlistName, @Model.countryCode
+                </div>
+            </a>
+        </div>
+    }
+</section>

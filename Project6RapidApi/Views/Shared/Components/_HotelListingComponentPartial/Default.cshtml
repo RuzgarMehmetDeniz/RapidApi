@@ -1,0 +1,65 @@
+﻿@model List<Project6RapidApi.Dtos.HotelDtos.ResultHotelDto>
+
+<div class="page-main">
+    <div class="sec-head">
+        <div>
+            <div class="sec-eyebrow">Editör Seçimi</div>
+            <h2 class="sec-title" id="listing-title">Bu Sezon <em>Gitmeniz Gereken</em> Oteller</h2>
+        </div>
+        <div class="sec-meta" id="listing-meta">@(Model?.Count ?? 0) Destinasyon · Global Koleksiyon</div>
+    </div>
+
+    <div class="hotel-grid">
+        @{
+            int count = 0;
+        }
+        @foreach (var item in Model)
+        {
+            count++;
+            // İlk kartın 'hotel-card-featured' class'ını almasını ve animasyon delay'lerini sağlıyoruz
+            string featuredClass = (count == 1) ? "hotel-card-featured" : "";
+            string animDelay = "d" + (count > 5 ? 1 : count);
+
+            <a class="hotel-card @featuredClass anim @animDelay" href="/Hotel/Hoteldetail/@item.hotel_id" style="@(count > 5 ? $"animation-delay:.{28 + (count * 7)}s" : "")">
+
+                @* Kategori etiketi *@
+                <div class="cat-tag">@item.reviewScoreWord</div>
+
+                <div class="rating-badge">
+                    <span class="rating-badge-num">@item.reviewScore.ToString("0.0")</span>
+                    <span class="rating-badge-label">Puan</span>
+                </div>
+
+                @* Resim URL'sini büyük boyuta çeviriyoruz *@
+                <img class="hotel-card-img"
+                     src="@(item.photoUrls != null && item.photoUrls.Length > 0 ? item.photoUrls[0].Replace("square60", "square900") : "/images/default-hotel.jpg")"
+                     alt="@item.name"
+                     loading="lazy">
+
+                <div class="hotel-card-body">
+                    @* DÜZELTİLEN KISIM: ToString("D2") ile 01, 02 gibi formatlama yapıldı *@
+                    <div class="hotel-card-number">No. @count.ToString("D2") · @item.countryCode?.ToUpper()</div>
+
+                    <div class="hotel-card-name">@item.name</div>
+                    <div class="hotel-card-loc">📍 @item.wishlistName, @item.countryCode</div>
+
+                    <div class="hotel-card-bottom">
+                        <div class="hotel-card-price">
+                            <span class="price-amount">@item.priceBreakdown?.grossPrice?.currency @item.priceBreakdown?.grossPrice?.value.ToString("N0")</span>
+                            <span class="price-night"> /gece</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:16px">
+                            <div class="hotel-card-stars">
+                                <span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span>
+                            </div>
+                            <span class="hotel-card-btn">İncele →</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+
+    @* Dashboard bileşenini altına bağlıyoruz *@
+    @await Component.InvokeAsync("_HotelDashboardComponentPartial")
+</div>

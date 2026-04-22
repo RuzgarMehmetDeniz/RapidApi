@@ -1,0 +1,116 @@
+﻿<div class="dashboard">
+    <div class="sec-head" style="margin-bottom:32px">
+        <div>
+            <div class="sec-eyebrow">Anlık Veriler</div>
+            <h2 class="sec-title">Seyahat <em>Paneli</em></h2>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#1a7a4a">
+            <span style="width:8px;height:8px;background:#1a7a4a;border-radius:50%;display:inline-block;animation:lp 1.5s ease-in-out infinite"></span>
+            Canlı
+        </div>
+    </div>
+
+    <div class="dashboard-split">
+        <!-- CURRENCY -->
+        <div class="dash-widget">
+            <div class="dash-widget-tag">Döviz · TRY Bazlı</div>
+            <div>
+                <div class="curr-row">
+                    <div class="curr-left"><span class="curr-flag">🇺🇸</span><span class="curr-code">USD</span></div>
+                    <div style="text-align:right"><span class="curr-val" id="usd-val">₺38.42</span><span class="curr-chg pos">↑ +0.32%</span></div>
+                </div>
+                <div class="curr-row">
+                    <div class="curr-left"><span class="curr-flag">🇪🇺</span><span class="curr-code">EUR</span></div>
+                    <div style="text-align:right"><span class="curr-val" id="eur-val">₺41.18</span><span class="curr-chg neg">↓ −0.15%</span></div>
+                </div>
+                <div class="curr-row">
+                    <div class="curr-left"><span class="curr-flag">🇬🇧</span><span class="curr-code">GBP</span></div>
+                    <div style="text-align:right"><span class="curr-val" id="gbp-val">₺48.65</span><span class="curr-chg pos">↑ +0.08%</span></div>
+                </div>
+                <div class="curr-row">
+                    <div class="curr-left"><span class="curr-flag">🇷🇺</span><span class="curr-code">RUB</span></div>
+                    <div style="text-align:right"><span class="curr-val" id="rub-val">₺0.42</span><span class="curr-chg neg">↓ −0.21%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEATHER -->
+        <div class="dash-widget">
+            <div class="dash-widget-tag">Hava Durumu · İstanbul</div>
+            <div class="weather-big">
+                <div class="weather-emoji" id="w-ico">⛅</div>
+                <div><div class="weather-num">19<sup>°C</sup></div></div>
+            </div>
+            <div class="weather-city-name">İstanbul, Türkiye</div>
+            <div class="weather-desc-text" id="w-desc">Parçalı Bulutlu</div>
+            <div class="weather-pills">
+                <div class="weather-pill">💧 %72 Nem</div>
+                <div class="weather-pill">💨 14 km/s</div>
+                <div class="weather-pill">🌡 Hissedilen 22°</div>
+            </div>
+        </div>
+
+        <!-- FUEL -->
+        <div class="dash-widget">
+            <div class="dash-widget-tag">Akaryakıt · Türkiye Ortalaması</div>
+            <div class="fuel-items">
+                <div>
+                    <div class="fuel-top">
+                        <span class="fuel-name">Benzin 95</span>
+                        <span><span class="fuel-val">₺47.82</span> <span class="fuel-unit">/lt</span></span>
+                    </div>
+                    <div class="fuel-track"><div class="fuel-fill red" style="width:85%"></div></div>
+                </div>
+                <div>
+                    <div class="fuel-top">
+                        <span class="fuel-name">Motorin</span>
+                        <span><span class="fuel-val">₺43.50</span> <span class="fuel-unit">/lt</span></span>
+                    </div>
+                    <div class="fuel-track"><div class="fuel-fill" style="width:72%"></div></div>
+                </div>
+                <div>
+                    <div class="fuel-top">
+                        <span class="fuel-name">LPG</span>
+                        <span><span class="fuel-val">₺24.30</span> <span class="fuel-unit">/lt</span></span>
+                    </div>
+                    <div class="fuel-track"><div class="fuel-fill sand" style="width:42%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRYPTO -->
+        <div class="dash-widget">
+            <div class="dash-widget-tag">Kripto Para</div>
+            <div class="crypto-items">
+                <div>
+                    <div class="crypto-item">
+                        <div class="crypto-sym btc">BTC</div>
+                        <div class="crypto-mid">
+                            <div class="crypto-name-t">Bitcoin</div>
+                            <div class="crypto-sym-t">BTC / USD</div>
+                        </div>
+                        <div class="crypto-right">
+                            <span class="crypto-price-t">$93,420</span>
+                            <span class="crypto-chg-t pos">↑ +2.34%</span>
+                        </div>
+                    </div>
+                    <div class="mini-chart" id="btc-chart"></div>
+                </div>
+                <div>
+                    <div class="crypto-item">
+                        <div class="crypto-sym eth">Ξ</div>
+                        <div class="crypto-mid">
+                            <div class="crypto-name-t">Ethereum</div>
+                            <div class="crypto-sym-t">ETH / USD</div>
+                        </div>
+                        <div class="crypto-right">
+                            <span class="crypto-price-t">$3,241</span>
+                            <span class="crypto-chg-t neg">↓ −0.87%</span>
+                        </div>
+                    </div>
+                    <div class="mini-chart" id="eth-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
