@@ -1,0 +1,18 @@
+﻿@model List<Project6RapidApi.Dtos.HotelDtos.ResultHotelDto>
+
+<div class="similar-grid">
+    @foreach (var item in Model)
+    {
+        <a class="similar-card" asp-controller="Hotel" asp-action="HotelDetail" asp-route-id="@item.hotel_id">
+            <img src="@(item.photoUrls.Length > 0 ? item.photoUrls[0] : "")" alt="@item.name">
+            <div class="similar-card-body">
+                <div class="similar-card-name">@item.name</div>
+                <div class="similar-card-loc">📍 @item.wishlistName</div>
+                <div class="similar-card-price">
+                    @item.priceBreakdown.grossPrice.currency @item.priceBreakdown.grossPrice.value.ToString("N0")
+                    <span>/gece</span>
+                </div>
+            </div>
+        </a>
+    }
+</div>

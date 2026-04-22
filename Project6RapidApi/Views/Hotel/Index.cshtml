@@ -50,7 +50,7 @@
     </div>
 
     <!-- LISTING -->
-    @await Component.InvokeAsync("_HotelListingComponentPartial")
+    @await Component.InvokeAsync("_HotelListingComponentPartial", new { city = Context.Request.Query["city"].ToString() })
 
     <footer>
         <div class="footer-logo">ATL<span>A</span>S</div>

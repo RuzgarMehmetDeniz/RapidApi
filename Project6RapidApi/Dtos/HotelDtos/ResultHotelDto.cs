@@ -31,3 +31,4 @@
         public string currency { get; set; }
     }
 }
+

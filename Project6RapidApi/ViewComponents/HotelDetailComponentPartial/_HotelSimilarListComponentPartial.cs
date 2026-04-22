@@ -2,12 +2,13 @@
 using Newtonsoft.Json;
 using Project6RapidApi.Dtos.HotelDtos;
 
-namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
+namespace Project6RapidApi.ViewComponents.Hotel
 {
-    public class _HotelListingComponentPartial : ViewComponent
+    public class _HotelSimilarListComponentPartial : ViewComponent
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public _HotelListingComponentPartial(IHttpClientFactory httpClientFactory)
+
+        public _HotelSimilarListComponentPartial(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -31,24 +32,18 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                 response.EnsureSuccessStatusCode();
                 var body = await response.Content.ReadAsStringAsync();
                 var apiResponse = JsonConvert.DeserializeObject<dynamic>(body);
-                var hotelListJson = apiResponse.data.hotels;
 
-                var values = new List<ResultHotelDto>();
+                var hotels = apiResponse.data.hotels;
+                var hotelList = new List<ResultHotelDto>();
 
-                foreach (var item in hotelListJson)
+                foreach (var item in hotels)
                 {
-                    values.Add(new ResultHotelDto
+                    hotelList.Add(new ResultHotelDto
                     {
                         hotel_id = (int)item.hotel_id,
                         name = (string)item.property.name,
-                        countryCode = (string)item.property.countryCode,
                         wishlistName = (string)item.property.wishlistName,
-                        reviewScore = (float)item.property.reviewScore,
-                        reviewScoreWord = (string)item.property.reviewScoreWord,
                         photoUrls = item.property.photoUrls.ToObject<string[]>(),
-                        accessibilityLabel = (string)item.accessibilityLabel,
-                        latitude = (float)item.property.latitude,
-                        longitude = (float)item.property.longitude,
                         priceBreakdown = new PriceBreakdown
                         {
                             grossPrice = new GrossPrice
@@ -60,16 +55,14 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                     });
                 }
 
-                if (!string.IsNullOrEmpty(city))
-                {
-                    var search = city.ToLower();
-                    values = values.Where(x =>
-                        (x.name != null && x.name.ToLower().Contains(search)) ||
-                        (x.wishlistName != null && x.wishlistName.ToLower().Contains(search))
-                    ).ToList();
-                }
+                // Mevcut şehre göre filtrele ve rastgele 3 tane seç
+                var values = hotelList
+                    .Where(x => x.wishlistName == city)
+                    .OrderBy(x => Guid.NewGuid()) // Her seferinde farklı gelsinler
+                    .Take(3)
+                    .ToList();
 
-                return View(values.Take(20).ToList());
+                return View(values);
             }
         }
     }

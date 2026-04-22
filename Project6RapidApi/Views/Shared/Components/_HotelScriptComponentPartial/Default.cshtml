@@ -1,54 +1,118 @@
 ﻿<script>
-    // Dates
+    // 1. TARİH AYARLARI (Giriş: +7 gün, Çıkış: +14 gün default)
     const t = new Date();
-    const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x.toISOString().split('T')[0]; };
-    document.getElementById('checkin').value = addDays(t,7);
-    document.getElementById('checkout').value = addDays(t,14);
+    const addDays = (d, n) => {
+        const x = new Date(d);
+        x.setDate(x.getDate() + n);
+        return x.toISOString().split('T')[0];
+    };
 
-    // Search — just scroll + toast
+    // Sayfa ilk açıldığında tarihleri doldur
+    const checkinInput = document.getElementById('checkin');
+    const checkoutInput = document.getElementById('checkout');
+    if(checkinInput) checkinInput.value = addDays(t, 7);
+    if(checkoutInput) checkoutInput.value = addDays(t, 14);
+
+    // 2. ARAMA FONKSİYONU (Çalışır Hale Getirildi)
     function doSearch() {
-      const city = document.getElementById('search-city').value.trim();
-      showToast(city ? `"${city}" için arama yapıldı` : 'Tüm destinasyonlar listelendi');
+        const city = document.getElementById('search-city').value.trim();
+        const checkin = document.getElementById('checkin').value;
+        const checkout = document.getElementById('checkout').value;
+        const guests = document.getElementById('guests').value;
+
+        if (city) {
+            showToast(`"${city}" lokasyonuna yönlendiriliyorsunuz...`);
+            // Parametreleri URL'ye ekleyip sayfayı yeniler
+            const url = `?city=${encodeURIComponent(city)}&checkin=${checkin}&checkout=${checkout}&guests=${encodeURIComponent(guests)}`;
+            window.location.href = url;
+        } else {
+            showToast('Lütfen bir destinasyon giriniz');
+        }
     }
 
-    // Weather icon based on hour
+    // 3. HAVA DURUMU (Saate göre dinamik ikon)
     const h = new Date().getHours();
     const wIco = document.getElementById('w-ico');
     const wDesc = document.getElementById('w-desc');
-    if (h>=6&&h<10){wIco.textContent='🌅';wDesc.textContent='Sabah Güneşli';}
-    else if(h>=10&&h<17){wIco.textContent='⛅';wDesc.textContent='Parçalı Bulutlu';}
-    else if(h>=17&&h<20){wIco.textContent='🌆';wDesc.textContent='Akşam Bulutu';}
-    else{wIco.textContent='🌙';wDesc.textContent='Açık Gece';}
+    if (wIco && wDesc) {
+        if (h >= 6 && h < 10) { wIco.textContent = '🌅'; wDesc.textContent = 'Sabah Güneşli'; }
+        else if (h >= 10 && h < 17) { wIco.textContent = '⛅'; wDesc.textContent = 'Parçalı Bulutlu'; }
+        else if (h >= 17 && h < 20) { wIco.textContent = '🌆'; wDesc.textContent = 'Akşam Bulutu'; }
+        else { wIco.textContent = '🌙'; wDesc.textContent = 'Açık Gece'; }
+    }
 
-    // Mini charts
-    ['btc-chart','eth-chart'].forEach((id,idx) => {
-      const el=document.getElementById(id); if(!el) return;
-      let v=50,html='';
-      for(let i=0;i<24;i++){v=Math.max(10,Math.min(90,v+(Math.random()-.48+(idx?-.03:.05))*10));html+=`<div class="mini-bar ${i>18?'active':''}" style="height:${v}%"></div>`;}
-      el.innerHTML=html;
+    // 4. MİNİ GRAFİKLER (BTC & ETH bar efektleri)
+    ['btc-chart', 'eth-chart'].forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let v = 50, html = '';
+        for (let i = 0; i < 24; i++) {
+            v = Math.max(10, Math.min(90, v + (Math.random() - .48 + (idx ? -.03 : .05)) * 10));
+            html += `<div class="mini-bar ${i > 18 ? 'active' : ''}" style="height:${v}%"></div>`;
+        }
+        el.innerHTML = html;
     });
 
-    // Currency live pulse
+    // 5. CANLI DÖVİZ NABZI (3.5 saniyede bir ufak değişim)
     setInterval(() => {
-      ['usd-val','eur-val','gbp-val','rub-val'].forEach(id => {
-        const el=document.getElementById(id); if(!el) return;
-        const v=parseFloat(el.textContent.replace('₺',''));
-        el.textContent='₺'+(v+(Math.random()-.5)*.03).toFixed(2);
-      });
+        ['usd-val', 'eur-val', 'gbp-val', 'rub-val'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const v = parseFloat(el.textContent.replace('₺', ''));
+            el.textContent = '₺' + (v + (Math.random() - .5) * .03).toFixed(2);
+        });
     }, 3500);
 
-    // Cursor
-    const cur=document.getElementById('cursor'), ring=document.getElementById('cursor-ring');
-    let mx=0,my=0,rx=0,ry=0;
-    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
-    const animC=()=>{rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animC);};animC();
-    document.querySelectorAll('a,button,.hotel-card,.curr-row').forEach(el=>{
-      el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2)';ring.style.width='60px';ring.style.height='60px';ring.style.opacity='.3';});
-      el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';ring.style.width='36px';ring.style.height='36px';ring.style.opacity='.5';});
+    // 6. ÖZEL CURSOR (İmleç ve Halka Takibi)
+    const cur = document.getElementById('cursor'), ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+        mx = e.clientX;
+        my = e.clientY;
+        if(cur) {
+            cur.style.left = mx + 'px';
+            cur.style.top = my + 'px';
+        }
     });
 
-    function showToast(msg){
-      const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-      setTimeout(()=>t.classList.remove('show'),2800);
+    const animC = () => {
+        rx += (mx - rx) * .12;
+        ry += (my - ry) * .12;
+        if(ring) {
+            ring.style.left = rx + 'px';
+            ring.style.top = ry + 'px';
+        }
+        requestAnimationFrame(animC);
+    };
+    animC();
+
+    // Etkileşimli elemanlara gelince imleci büyüt
+    document.querySelectorAll('a, button, .hotel-card, .curr-row, input, select').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            if(cur) cur.style.transform = 'translate(-50%,-50%) scale(2)';
+            if(ring) {
+                ring.style.width = '60px';
+                ring.style.height = '60px';
+                ring.style.opacity = '.3';
+            }
+        });
+        el.addEventListener('mouseleave', () => {
+            if(cur) cur.style.transform = 'translate(-50%,-50%) scale(1)';
+            if(ring) {
+                ring.style.width = '36px';
+                ring.style.height = '36px';
+                ring.style.opacity = '.5';
+            }
+        });
+    });
+
+    // 7. TOAST BİLDİRİMİ
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        if(!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
     }
 </script>
