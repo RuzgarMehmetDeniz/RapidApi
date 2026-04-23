@@ -4,6 +4,7 @@ using Project6RapidApi.Dtos.DashboardDtos;
 using System.Globalization;
 
 namespace Project6RapidApi.ViewComponents
+
 {
     public class _HotelDashboardComponentPartial : ViewComponent
     {
