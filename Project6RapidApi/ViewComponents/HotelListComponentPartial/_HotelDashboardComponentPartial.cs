@@ -6,7 +6,6 @@ using System.Globalization;
 namespace Project6RapidApi.ViewComponents
 {
     public class _HotelDashboardComponentPartial : ViewComponent
-
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private const string ApiKey = "ApiKey";
