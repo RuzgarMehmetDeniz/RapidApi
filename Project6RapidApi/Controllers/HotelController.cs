@@ -22,7 +22,6 @@ namespace Project6RapidApi.Controllers
         {
             return View();
         }
-
         public IActionResult Index()
         {
             return View();
