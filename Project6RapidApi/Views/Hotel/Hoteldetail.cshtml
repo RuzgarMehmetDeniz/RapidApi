@@ -90,10 +90,10 @@
                             style="border:0; filter: grayscale(1) contrast(1.1) invert(0.05);"
                             loading="lazy"
                             allowfullscreen
-                            src="https://maps.google.com/maps?q=@Model.latitude,@Model.longitude&t=&z=15&ie=UTF8&iwloc=&output=embed">
+                            src="https://www.google.com/maps?q=@(Model.name),@(Model.wishlistName)&output=embed">
                     </iframe>
                     <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10;">
-                        <a class="map-directions" href="https://www.google.com/maps/dir/?api=1&destination=@Model.latitude,@Model.longitude" target="_blank"
+                        <a class="map-directions" href="https://www.google.com/maps/dir/?api=1&destination=@(Model.name),@(Model.wishlistName)" target="_blank"
                            style="background: #000; color: #fff; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 13px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); white-space: nowrap;">
                             Yol Tarifi Al →
                         </a>

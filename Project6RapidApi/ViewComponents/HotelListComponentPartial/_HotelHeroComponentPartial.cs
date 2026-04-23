@@ -21,7 +21,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                 RequestUri = new Uri("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date=2026-05-01&departure_date=2026-05-08&adults=2&room_qty=1&page_number=1&units=metric&currency_code=EUR"),
                 Headers =
                 {
-                    { "x-rapidapi-key", "bbaeb3e282mshdc92187a4bc5f22p10bd46jsn56794c188f98" },
+                    { "x-rapidapi-key", "ApiKey" },
                     { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
                 },
             };

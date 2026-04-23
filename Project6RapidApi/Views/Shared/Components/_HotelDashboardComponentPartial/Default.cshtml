@@ -1,4 +1,6 @@
-﻿<div class="dashboard">
+﻿@model Project6RapidApi.Dtos.DashboardDtos.ResultDashboardDto
+
+<div class="dashboard">
     <div class="sec-head" style="margin-bottom:32px">
         <div>
             <div class="sec-eyebrow">Anlık Veriler</div>
@@ -6,111 +8,133 @@
         </div>
         <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#1a7a4a">
             <span style="width:8px;height:8px;background:#1a7a4a;border-radius:50%;display:inline-block;animation:lp 1.5s ease-in-out infinite"></span>
-            Canlı
+            Canlı Bağlantı Aktif
         </div>
     </div>
 
     <div class="dashboard-split">
-        <!-- CURRENCY -->
+        @* --- DÖVİZ KURLARI --- *@
         <div class="dash-widget">
             <div class="dash-widget-tag">Döviz · TRY Bazlı</div>
             <div>
-                <div class="curr-row">
-                    <div class="curr-left"><span class="curr-flag">🇺🇸</span><span class="curr-code">USD</span></div>
-                    <div style="text-align:right"><span class="curr-val" id="usd-val">₺38.42</span><span class="curr-chg pos">↑ +0.32%</span></div>
-                </div>
-                <div class="curr-row">
-                    <div class="curr-left"><span class="curr-flag">🇪🇺</span><span class="curr-code">EUR</span></div>
-                    <div style="text-align:right"><span class="curr-val" id="eur-val">₺41.18</span><span class="curr-chg neg">↓ −0.15%</span></div>
-                </div>
-                <div class="curr-row">
-                    <div class="curr-left"><span class="curr-flag">🇬🇧</span><span class="curr-code">GBP</span></div>
-                    <div style="text-align:right"><span class="curr-val" id="gbp-val">₺48.65</span><span class="curr-chg pos">↑ +0.08%</span></div>
-                </div>
-                <div class="curr-row">
-                    <div class="curr-left"><span class="curr-flag">🇷🇺</span><span class="curr-code">RUB</span></div>
-                    <div style="text-align:right"><span class="curr-val" id="rub-val">₺0.42</span><span class="curr-chg neg">↓ −0.21%</span></div>
-                </div>
+                @foreach (var item in Model.Currencies)
+                {
+                    <div class="curr-row">
+                        <div class="curr-left">
+                            <span class="curr-flag">@item.Symbol</span>
+                            <span class="curr-code">@item.Code</span>
+                        </div>
+                        <div style="text-align:right">
+                            <span class="curr-val">₺@item.Value.ToString("N2")</span>
+                            <span class="curr-chg @(item.IsPositive ? "pos" : "neg")">
+                                @(item.IsPositive ? "↑" : "↓") @item.Change
+                            </span>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
-        <!-- WEATHER -->
+        @* --- HAVA DURUMU --- *@
         <div class="dash-widget">
-            <div class="dash-widget-tag">Hava Durumu · İstanbul</div>
+            <div class="dash-widget-tag">Hava Durumu · @Model.Weather.City</div>
             <div class="weather-big">
-                <div class="weather-emoji" id="w-ico">⛅</div>
-                <div><div class="weather-num">19<sup>°C</sup></div></div>
+                @* Backend'den gelen Icon boşsa varsayılan güneş koyuyoruz *@
+                <div class="weather-emoji">@(string.IsNullOrEmpty(Model.Weather.Icon) ? "☀️" : Model.Weather.Icon)</div>
+                <div><div class="weather-num">@Model.Weather.Degree<sup>°C</sup></div></div>
             </div>
-            <div class="weather-city-name">İstanbul, Türkiye</div>
-            <div class="weather-desc-text" id="w-desc">Parçalı Bulutlu</div>
+            <div class="weather-city-name">@Model.Weather.City, Türkiye</div>
+            <div class="weather-desc-text">@Model.Weather.Description</div>
             <div class="weather-pills">
-                <div class="weather-pill">💧 %72 Nem</div>
-                <div class="weather-pill">💨 14 km/s</div>
-                <div class="weather-pill">🌡 Hissedilen 22°</div>
+                <div class="weather-pill">💧 @Model.Weather.Humidity Nem</div>
+                <div class="weather-pill">💨 @Model.Weather.WindSpeed</div>
+                <div class="weather-pill">🌡 Hissedilen @Model.Weather.FeelsLike</div>
             </div>
         </div>
 
-        <!-- FUEL -->
+        @* --- AKARYAKIT (EURO -> TRY DÖNÜŞÜMLÜ) --- *@
         <div class="dash-widget">
-            <div class="dash-widget-tag">Akaryakıt · Türkiye Ortalaması</div>
+            <div class="dash-widget-tag">Akaryakıt · Türkiye Fiyatları (TRY)</div>
             <div class="fuel-items">
-                <div>
-                    <div class="fuel-top">
-                        <span class="fuel-name">Benzin 95</span>
-                        <span><span class="fuel-val">₺47.82</span> <span class="fuel-unit">/lt</span></span>
-                    </div>
-                    <div class="fuel-track"><div class="fuel-fill red" style="width:85%"></div></div>
-                </div>
-                <div>
-                    <div class="fuel-top">
-                        <span class="fuel-name">Motorin</span>
-                        <span><span class="fuel-val">₺43.50</span> <span class="fuel-unit">/lt</span></span>
-                    </div>
-                    <div class="fuel-track"><div class="fuel-fill" style="width:72%"></div></div>
-                </div>
-                <div>
-                    <div class="fuel-top">
-                        <span class="fuel-name">LPG</span>
-                        <span><span class="fuel-val">₺24.30</span> <span class="fuel-unit">/lt</span></span>
-                    </div>
-                    <div class="fuel-track"><div class="fuel-fill sand" style="width:42%"></div></div>
-                </div>
+                @if (Model.FuelPrices.Any())
+                {
+                    @foreach (var fuel in Model.FuelPrices)
+                    {
+                        <div>
+                            <div class="fuel-top">
+                                <span class="fuel-name">@fuel.FuelType</span>
+                                <span><span class="fuel-val">₺@fuel.Price.ToString("N2")</span> <span class="fuel-unit">/lt</span></span>
+                            </div>
+                            <div class="fuel-track">
+                                <div class="fuel-fill @fuel.ColorClass" style="width:@fuel.BarPercentage%"></div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted" style="font-size:12px; padding:10px;">Akaryakıt verisi yükleniyor...</div>
+                }
             </div>
         </div>
 
-        <!-- CRYPTO -->
+        @* --- KRİPTO PARA --- *@
         <div class="dash-widget">
-            <div class="dash-widget-tag">Kripto Para</div>
+            <div class="dash-widget-tag">Kripto Borsası (Global)</div>
             <div class="crypto-items">
-                <div>
-                    <div class="crypto-item">
-                        <div class="crypto-sym btc">BTC</div>
-                        <div class="crypto-mid">
-                            <div class="crypto-name-t">Bitcoin</div>
-                            <div class="crypto-sym-t">BTC / USD</div>
+                @foreach (var crypto in Model.CryptoPrices)
+                {
+                    <div>
+                        <div class="crypto-item">
+                            @* CSS sınıfı için btc, eth gibi küçük harf kullanıyoruz *@
+                            <div class="crypto-sym @crypto.Symbol.ToLower()">
+                                @(crypto.Symbol.ToUpper() == "ETH" ? "Ξ" : (crypto.Symbol.ToUpper() == "BTC" ? "₿" : crypto.Symbol.ToUpper()))
+                            </div>
+                            <div class="crypto-mid">
+                                <div class="crypto-name-t">@crypto.Name</div>
+                                <div class="crypto-sym-t">@crypto.Code</div>
+                            </div>
+                            <div class="crypto-right">
+                                <span class="crypto-price-t">@crypto.Price</span>
+                                <span class="crypto-chg-t @(crypto.IsPositive ? "pos" : "neg")">
+                                    @(crypto.IsPositive ? "↑" : "↓") @crypto.Change
+                                </span>
+                            </div>
                         </div>
-                        <div class="crypto-right">
-                            <span class="crypto-price-t">$93,420</span>
-                            <span class="crypto-chg-t pos">↑ +2.34%</span>
-                        </div>
+                        <div class="mini-chart" id="@crypto.Symbol.ToLower()-chart"></div>
                     </div>
-                    <div class="mini-chart" id="btc-chart"></div>
-                </div>
-                <div>
-                    <div class="crypto-item">
-                        <div class="crypto-sym eth">Ξ</div>
-                        <div class="crypto-mid">
-                            <div class="crypto-name-t">Ethereum</div>
-                            <div class="crypto-sym-t">ETH / USD</div>
-                        </div>
-                        <div class="crypto-right">
-                            <span class="crypto-price-t">$3,241</span>
-                            <span class="crypto-chg-t neg">↓ −0.87%</span>
-                        </div>
-                    </div>
-                    <div class="mini-chart" id="eth-chart"></div>
-                </div>
+                }
             </div>
         </div>
     </div>
 </div>
+
+@* Küçük Animasyonlar İçin Inline Style (Eğer CSS'te yoksa) *@
+<style>
+    @@keyframes lp {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.5;
+            transform: scale(1.2);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .pos {
+        color: #1a7a4a !important;
+        font-weight: bold;
+    }
+
+    .neg {
+        color: #c62828 !important;
+        font-weight: bold;
+    }
+</style>

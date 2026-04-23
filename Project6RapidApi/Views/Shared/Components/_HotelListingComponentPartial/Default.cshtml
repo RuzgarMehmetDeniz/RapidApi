@@ -1,28 +1,46 @@
 ﻿@model List<Project6RapidApi.Dtos.HotelDtos.ResultHotelDto>
 
+@{
+    // --- SAYFALAMA MANTIĞI ---
+    int pageSize = 5; // Her sayfada kaç otel görünecek
+    int totalItems = Model?.Count ?? 0;
+    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+    // URL'den mevcut sayfayı al (QueryString: ?page=1)
+    int currentPage = 1;
+    if (Context.Request.Query.ContainsKey("page"))
+    {
+        int.TryParse(Context.Request.Query["page"], out currentPage);
+    }
+
+    // Sayfa sınırlarını koru
+    currentPage = currentPage < 1 ? 1 : (currentPage > totalPages ? totalPages : currentPage);
+
+    // Listeyi sayfaya göre parçala
+    var pagedHotels = Model.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+    // Otel numaralandırmasının doğru devam etmesi için başlangıç değeri
+    int count = (currentPage - 1) * pageSize;
+}
+
 <div class="page-main">
     <div class="sec-head">
         <div>
             <div class="sec-eyebrow">Editör Seçimi</div>
             <h2 class="sec-title" id="listing-title">Bu Sezon <em>Gitmeniz Gereken</em> Oteller</h2>
         </div>
-        <div class="sec-meta" id="listing-meta">@(Model?.Count ?? 0) Destinasyon · Global Koleksiyon</div>
+        <div class="sec-meta" id="listing-meta">@totalItems Destinasyon · Sayfa @currentPage / @totalPages</div>
     </div>
 
     <div class="hotel-grid">
-        @{
-            int count = 0;
-        }
-        @foreach (var item in Model)
+        @foreach (var item in pagedHotels)
         {
             count++;
-            // İlk kartın 'hotel-card-featured' class'ını almasını ve animasyon delay'lerini sağlıyoruz
-            string featuredClass = (count == 1) ? "hotel-card-featured" : "";
-            string animDelay = "d" + (count > 5 ? 1 : count);
+            string featuredClass = (count == 1 + ((currentPage - 1) * pageSize)) ? "hotel-card-featured" : "";
+            string animDelay = "d" + (count % pageSize == 0 ? pageSize : count % pageSize);
 
-            <a class="hotel-card @featuredClass anim @animDelay" href="/Hotel/Hoteldetail/@item.hotel_id" style="@(count > 5 ? $"animation-delay:.{28 + (count * 7)}s" : "")">
+            <a class="hotel-card @featuredClass anim @animDelay" href="/Hotel/Hoteldetail/@item.hotel_id">
 
-                @* Kategori etiketi *@
                 <div class="cat-tag">@item.reviewScoreWord</div>
 
                 <div class="rating-badge">
@@ -30,14 +48,12 @@
                     <span class="rating-badge-label">Puan</span>
                 </div>
 
-                @* Resim URL'sini büyük boyuta çeviriyoruz *@
                 <img class="hotel-card-img"
                      src="@(item.photoUrls != null && item.photoUrls.Length > 0 ? item.photoUrls[0].Replace("square60", "square900") : "/images/default-hotel.jpg")"
                      alt="@item.name"
                      loading="lazy">
 
                 <div class="hotel-card-body">
-                    @* DÜZELTİLEN KISIM: ToString("D2") ile 01, 02 gibi formatlama yapıldı *@
                     <div class="hotel-card-number">No. @count.ToString("D2") · @item.countryCode?.ToUpper()</div>
 
                     <div class="hotel-card-name">@item.name</div>
@@ -60,6 +76,31 @@
         }
     </div>
 
-    @* Dashboard bileşenini altına bağlıyoruz *@
+    @* --- SAYFALAMA NAVİGASYONU --- *@
+    @if (totalPages > 1)
+    {
+        <div class="pagination-wrapper" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 50px 0;">
+            @if (currentPage > 1)
+            {
+                <a href="?page=@(currentPage - 1)" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">← Önceki</a>
+            }
+
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <a href="?page=@i"
+                   style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; transition: all 0.3s;
+                                  background: @(i == currentPage ? "#000" : "#f4f4f4");
+                                  color: @(i == currentPage ? "#fff" : "#000");">
+                    @i
+                </a>
+            }
+
+            @if (currentPage < totalPages)
+            {
+                <a href="?page=@(currentPage + 1)" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">Sonraki →</a>
+            }
+        </div>
+    }
+
     @await Component.InvokeAsync("_HotelDashboardComponentPartial")
 </div>
