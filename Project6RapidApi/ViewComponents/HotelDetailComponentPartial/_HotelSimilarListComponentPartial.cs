@@ -19,51 +19,57 @@ namespace Project6RapidApi.ViewComponents.Hotel
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date=2026-05-01&departure_date=2026-05-08&adults=2&room_qty=1&page_number=1&units=metric&currency_code=EUR"),
+                RequestUri = new Uri("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date=2026-05-10&departure_date=2026-05-15&adults=2&room_qty=1&page_number=1&units=metric&currency_code=USD"),
                 Headers =
-                {
-                    { "x-rapidapi-key", "ApiKey" },
-                    { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
-                },
+        {
+            { "x-rapidapi-key", "6a6a4ee341msh8f7155de290c680p1839b7jsnd76f6801b9a8" }, // ApiKey yerine kendi keyini yazdım
+            { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
+        },
             };
 
-            using (var response = await client.SendAsync(request))
+            var hotelList = new List<ResultHotelDto>();
+
+            try
             {
-                response.EnsureSuccessStatusCode();
-                var body = await response.Content.ReadAsStringAsync();
-                var apiResponse = JsonConvert.DeserializeObject<dynamic>(body);
-
-                var hotels = apiResponse.data.hotels;
-                var hotelList = new List<ResultHotelDto>();
-
-                foreach (var item in hotels)
+                using (var response = await client.SendAsync(request))
                 {
-                    hotelList.Add(new ResultHotelDto
+                    if (response.IsSuccessStatusCode)
                     {
-                        hotel_id = (int)item.hotel_id,
-                        name = (string)item.property.name,
-                        wishlistName = (string)item.property.wishlistName,
-                        photoUrls = item.property.photoUrls.ToObject<string[]>(),
-                        priceBreakdown = new PriceBreakdown
+                        var body = await response.Content.ReadAsStringAsync();
+                        var apiResponse = JsonConvert.DeserializeObject<dynamic>(body);
+
+                        if (apiResponse?.data?.hotels != null)
                         {
-                            grossPrice = new GrossPrice
+                            foreach (var item in apiResponse.data.hotels)
                             {
-                                value = (float)item.property.priceBreakdown.grossPrice.value,
-                                currency = (string)item.property.priceBreakdown.grossPrice.currency
+                                hotelList.Add(new ResultHotelDto
+                                {
+                                    hotel_id = (int)item.hotel_id,
+                                    name = (string)item.property.name,
+                                    wishlistName = (string)item.property.wishlistName,
+                                    photoUrls = item.property.photoUrls?.ToObject<string[]>() ?? new string[0],
+                                    priceBreakdown = new PriceBreakdown
+                                    {
+                                        grossPrice = new GrossPrice
+                                        {
+                                            value = (float?)item.property.priceBreakdown?.grossPrice?.value ?? 0,
+                                            currency = (string)item.property.priceBreakdown?.grossPrice?.currency ?? "USD"
+                                        }
+                                    }
+                                });
                             }
                         }
-                    });
+                    }
                 }
-
-                // Mevcut şehre göre filtrele ve rastgele 3 tane seç
-                var values = hotelList
-                    .Where(x => x.wishlistName == city)
-                    .OrderBy(x => Guid.NewGuid()) // Her seferinde farklı gelsinler
-                    .Take(3)
-                    .ToList();
-
-                return View(values);
             }
+            catch { /* Hata yutulur, boş liste döner */ }
+
+            // Şehir bazlı filtrele, eğer şehir uyuşmuyorsa rastgele 3 tanesini getir (Boş kalmaması için)
+            var values = hotelList.Where(x => x.wishlistName == city).ToList();
+            if (!values.Any()) values = hotelList.OrderBy(x => Guid.NewGuid()).Take(3).ToList();
+            else values = values.OrderBy(x => Guid.NewGuid()).Take(3).ToList();
+
+            return View(values);
         }
     }
 }

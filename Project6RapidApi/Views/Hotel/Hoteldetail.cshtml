@@ -6,48 +6,44 @@
 <html lang="tr">
     @await Component.InvokeAsync("_HotelDetailHeadComponentPartial")
 <body>
-
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursor-ring"></div>
 
     <nav>
-        <div class="nav-left">
-            <a class="nav-back" asp-controller="Hotel" asp-action="Index">← Listeye Dön</a>
-        </div>
-        <div class="nav-center">
-            <a class="nav-logo" href="/">ATL<span>A</span>S</a>
-        </div>
-        <div class="nav-right">
-            <button class="nav-book-btn" onclick="scrollToBooking()">Rezervasyon Yap</button>
-        </div>
+        <div class="nav-left"><a class="nav-back" asp-controller="Hotel" asp-action="Index">← Listeye Dön</a></div>
+        <div class="nav-center"><a class="nav-logo" href="/">ATL<span>A</span>S</a></div>
+        <div class="nav-right"><button class="nav-book-btn" onclick="scrollToBooking()">Rezervasyon Yap</button></div>
     </nav>
 
     <div class="breadcrumb">
-        <a href="/">Atlas</a>
-        <span class="breadcrumb-sep">/</span>
-        <a href="/Hotel/Index">Oteller</a>
-        <span class="breadcrumb-sep">/</span>
+        <a href="/">Atlas</a> <span class="breadcrumb-sep">/</span>
+        <a href="/Hotel/Index">Oteller</a> <span class="breadcrumb-sep">/</span>
         <span class="breadcrumb-current">@Model.name</span>
     </div>
 
     <div class="hotel-page active">
         <div class="photo-gallery">
-            <img class="gallery-main" src="@(Model.photoUrls.Length > 0 ? Model.photoUrls[0] : "")" alt="@Model.name">
-            <img src="@(Model.photoUrls.Length > 1 ? Model.photoUrls[1] : "")" alt="Otel Görsel 2">
-            <img src="@(Model.photoUrls.Length > 2 ? Model.photoUrls[2] : "")" alt="Otel Görsel 3">
+            @if (Model.photoUrls != null && Model.photoUrls.Length > 0)
+            {
+                <img class="gallery-main" src="@Model.photoUrls[0]" alt="@Model.name">
+                @if (Model.photoUrls.Length > 1)
+                {
+                    <img src="@Model.photoUrls[1]" alt="Görsel 2">
+                }
+                @if (Model.photoUrls.Length > 2)
+                {
+                    <img src="@Model.photoUrls[2]" alt="Görsel 3">
+                }
+            }
         </div>
 
         <div class="detail-body">
             <div class="detail-main">
                 <div class="detail-cat">5★ Premium · @Model.reviewScoreWord</div>
                 <h1 class="detail-hotel-name">@Model.name</h1>
-
                 <div class="detail-meta-row">
                     <div class="detail-loc">📍 @Model.wishlistName, @Model.countryCode</div>
-                    <div class="detail-score-box">
-                        <span class="num">@Model.reviewScore.ToString("0.0")</span>
-                        <span class="lbl">Misafir<br>Puanı</span>
-                    </div>
+                    <div class="detail-score-box"><span class="num">@Model.reviewScore.ToString("0.0")</span><span class="lbl">Misafir<br>Puanı</span></div>
                     <div class="detail-stars-box">
                         @for (int i = 0; i < 5; i++)
                         {
@@ -55,45 +51,31 @@
                         }
                     </div>
                 </div>
-
-                <p class="detail-desc-text">@Model.accessibilityLabel. @Model.wishlistName bölgesinde bulunan bu tesis, @Model.reviewScore puanı ile misafirlerine unutulmaz bir konaklama vaat ediyor.</p>
+                <p class="detail-desc-text">@Model.accessibilityLabel. @Model.wishlistName bölgesinde unutulmaz bir konaklama.</p>
 
                 <div class="detail-section-title">Öne Çıkan Özellikler</div>
                 <div class="feat-grid">
                     @foreach (var feature in Model.FeaturedFeatures)
                     {
-                        <div class="feat-item">
-                            <div class="feat-ico">✨</div>
-                            <div class="feat-txt">@feature</div>
-                        </div>
-                    }
-                </div>
-
-                <div class="detail-section-title">Giriş / Çıkış Saatleri</div>
-                <div class="check-row">
-                    <div class="check-box"><div class="check-lbl">Check-in</div><div class="check-time-val">14:00</div></div>
-                    <div class="check-box"><div class="check-lbl">Check-out</div><div class="check-time-val">12:00</div></div>
-                </div>
-
-                <div class="detail-section-title">Yakın Noktalar</div>
-                <div class="nearby-row">
-                    @foreach (var place in Model.NearbyPlaces)
-                    {
-                        <span class="nearby-tag">📍 @place</span>
+                        <div class="feat-item"><div class="feat-ico">✨</div><div class="feat-txt">@feature</div></div>
                     }
                 </div>
 
                 <div class="detail-section-title">Konum</div>
-                <div class="map-container" style="height: 350px; border-radius: 20px; overflow: hidden; position: relative; border: 1px solid rgba(0,0,0,0.1); background: #f0f0f0;">
+                <div class="map-container" style="height:350px; border-radius:20px; overflow:hidden; position:relative; background:#f0f0f0; border: 1px solid rgba(0,0,0,0.1);">
+                    @* Google Maps Iframe Düzenlemesi *@
                     <iframe width="100%"
                             height="100%"
                             style="border:0; filter: grayscale(1) contrast(1.1) invert(0.05);"
                             loading="lazy"
                             allowfullscreen
-                            src="https://www.google.com/maps?q=@(Model.name),@(Model.wishlistName)&output=embed">
+                            src="https://maps.google.com/maps?q=@Model.latitude.ToString().Replace(",", "."),@Model.longitude.ToString().Replace(",", ".")&hl=tr&z=15&output=embed">
                     </iframe>
+
+                    @* Dinamik Yol Tarifi Butonu *@
                     <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10;">
-                        <a class="map-directions" href="https://www.google.com/maps/dir/?api=1&destination=@(Model.name),@(Model.wishlistName)" target="_blank"
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=@Model.latitude.ToString().Replace(",", "."),@Model.longitude.ToString().Replace(",", ".")"
+                           target="_blank"
                            style="background: #000; color: #fff; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 13px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); white-space: nowrap;">
                             Yol Tarifi Al →
                         </a>
@@ -109,52 +91,22 @@
                 </div>
 
                 <div class="booking-inputs">
-                    <div class="book-field">
-                        <label>Giriş Tarihi</label>
-                        <input type="date" id="check-in-date" style="color-scheme:light;">
-                    </div>
-                    <div class="book-field">
-                        <label>Çıkış Tarihi</label>
-                        <input type="date" id="check-out-date" style="color-scheme:light;">
-                    </div>
+                    <div class="book-field"><label>Giriş Tarihi</label><input type="date" id="check-in-date"></div>
+                    <div class="book-field"><label>Çıkış Tarihi</label><input type="date" id="check-out-date"></div>
                 </div>
 
-                <div class="nights-info" id="nights-info">
-                    <span>1</span> gece · @Model.priceBreakdown.grossPrice.currency @Model.priceBreakdown.grossPrice.value.ToString("N0") /gece
-                </div>
-
-                <div class="total-row">
-                    <div class="total-lbl">Toplam Tutar</div>
-                    <div class="total-amt" id="total-amount">@Model.priceBreakdown.grossPrice.currency 0</div>
-                </div>
-
+                <div class="nights-info" id="nights-info"><span>1</span> gece · @Model.priceBreakdown.grossPrice.currency @Model.priceBreakdown.grossPrice.value.ToString("N0") /gece</div>
+                <div class="total-row"><div class="total-lbl">Toplam Tutar</div><div class="total-amt" id="total-amount">@Model.priceBreakdown.grossPrice.currency 0</div></div>
                 <button class="book-cta" onclick="showToast('Ödeme sayfasına yönlendiriliyorsunuz...')">Hemen Rezervasyon Yap</button>
-
-                <div class="booking-notes">
-                    <div class="booking-note">Ücretsiz iptal — 48 saat öncesine kadar</div>
-                    <div class="booking-note">Fiyat garantisi — En iyi fiyat</div>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="similar-section">
-        <div class="sec-eyebrow" style="font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:10px">Benzer Oteller</div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,3vw,40px);font-weight:900;color:var(--ink)">Bunları da <em style="font-style:italic;color:var(--red)">Beğenebilirsiniz</em></h2>
-        @await Component.InvokeAsync("_HotelSimilarListComponentPartial", new { city = Model.wishlistName })
-    </div>
-
-    <footer>
-        <div class="footer-logo">ATL<span>A</span>S</div>
-        <div class="footer-copy">© 2026 Atlas Luxury Travel. Tüm hakları saklıdır.</div>
-    </footer>
-
+    <footer><div class="footer-logo">ATL<span>A</span>S</div></footer>
     <div id="toast"></div>
 
     <script>
-        // Sayı formatı sorununu önlemek için .replace kullanarak temizleme yapıyoruz
-        const priceValueRaw = "@Model.priceBreakdown.grossPrice.value".replace(',', '.');
-        const pricePerNight = parseFloat(priceValueRaw);
+        const pricePerNight = parseInt("@Model.priceBreakdown.grossPrice.value");
         const currencySymbol = "@Model.priceBreakdown.grossPrice.currency";
 
         const ciInput = document.getElementById('check-in-date');
@@ -162,49 +114,28 @@
         const nightsInfo = document.getElementById('nights-info');
         const totalAmount = document.getElementById('total-amount');
 
-        const formatDate = (date) => date.toISOString().split('T')[0];
-
-        const today = new Date();
-        const tomorrow = new Date();
-        tomorrow.setDate(today.getDate() + 1);
-
-        ciInput.value = formatDate(today);
-        coInput.value = formatDate(tomorrow);
+        ciInput.value = "2026-05-10";
+        coInput.value = "2026-05-11";
 
         function recalc() {
-            const date1 = new Date(ciInput.value);
-            const date2 = new Date(coInput.value);
+            const d1 = new Date(ciInput.value);
+            const d2 = new Date(coInput.value);
+            if (d2 <= d1) { d2.setDate(d1.getDate() + 1); coInput.value = d2.toISOString().split('T')[0]; }
 
-            if (date2 <= date1) {
-                date2.setDate(date1.getDate() + 1);
-                coInput.value = formatDate(date2);
-            }
-
-            const diffTime = date2 - date1;
-            const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (!isNaN(nights) && nights > 0) {
-                const total = pricePerNight * nights;
-                nightsInfo.innerHTML = `<span>${nights}</span> gece · ${currencySymbol} ${pricePerNight.toLocaleString('tr-TR')} /gece`;
-                totalAmount.textContent = `${currencySymbol} ${total.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+            const diff = Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
+            if (diff > 0) {
+                const total = pricePerNight * diff;
+                nightsInfo.innerHTML = `<span>${diff}</span> gece · ${currencySymbol} ${pricePerNight.toLocaleString('tr-TR')} /gece`;
+                totalAmount.textContent = `${currencySymbol} ${total.toLocaleString('tr-TR')}`;
             }
         }
 
         ciInput.addEventListener('change', recalc);
         coInput.addEventListener('change', recalc);
-
         recalc();
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2800);
-        }
-
-        function scrollToBooking() {
-            document.getElementById('booking-section').scrollIntoView({ behavior: 'smooth' });
-        }
+        function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800); }
+        function scrollToBooking() { document.getElementById('booking-section').scrollIntoView({ behavior: 'smooth' }); }
 
         const cur = document.getElementById('cursor'), ring = document.getElementById('cursor-ring');
         let mx = 0, my = 0, rx = 0, ry = 0;

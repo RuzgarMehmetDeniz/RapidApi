@@ -20,10 +20,11 @@
         </div>
     </div>
 
-    @if (Model != null)
+    @* Model null değilse ve hotel_id 0'dan büyükse (yani veri geldiyse) göster *@
+    @if (Model != null && Model.hotel_id != 0)
     {
         <div class="hero-right">
-            @* API'den gelen görseli basıyoruz, görsel yoksa Unsplash görseli kalıyor *@
+            @* Görsel kontrolü *@
             <img src="@(Model.photoUrls != null && Model.photoUrls.Length > 0 ? Model.photoUrls[0].Replace("square60", "square900") : "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&q=85")"
                  alt="@Model.name">
 
@@ -33,7 +34,16 @@
                 <div class="hero-tag-label">Bu Haftanın Seçimi</div>
                 <div class="hero-tag-title">@Model.name</div>
                 <div class="hero-tag-price">
-                    @Model.priceBreakdown.grossPrice.currency @Model.priceBreakdown.grossPrice.value.ToString("N0") / gece · @Model.wishlistName, @Model.countryCode
+                    @* Fiyat nesnesi boş mu kontrolü (Hatanın asıl çözümü burası) *@
+                    @if (Model.priceBreakdown?.grossPrice != null)
+                    {
+                        @Model.priceBreakdown.grossPrice.currency @Model.priceBreakdown.grossPrice.value.ToString("N0") <span>/ gece</span>
+                    }
+                    else
+                    {
+                        <span>Fiyat Bilgisi Yok</span>
+                    }
+                    · @Model.wishlistName, @Model.countryCode
                 </div>
             </a>
         </div>

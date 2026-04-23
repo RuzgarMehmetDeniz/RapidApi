@@ -1,26 +1,46 @@
 ﻿@model List<Project6RapidApi.Dtos.HotelDtos.ResultHotelDto>
 
 @{
+    // --- TARİH VE GECE HESABI ---
+    string arrivalStr = Context.Request.Query["arrival"];
+    string departureStr = Context.Request.Query["departure"];
+    string cityParam = Context.Request.Query["city"];
+
+    int totalNights = 1;
+
+    // Eğer tarihler parse edilebiliyorsa gece sayısını hesapla
+    if (DateTime.TryParse(arrivalStr, out DateTime start) && DateTime.TryParse(departureStr, out DateTime end))
+    {
+        totalNights = (end - start).Days;
+        if (totalNights <= 0) totalNights = 1;
+    }
+    else
+    {
+        // İlk açılışta veya geçersiz tarihte varsayılan (API'deki tarih aralığı 7 gün)
+        totalNights = 7;
+    }
+
     // --- SAYFALAMA MANTIĞI ---
-    int pageSize = 5; // Her sayfada kaç otel görünecek
+    int pageSize = 5; // Sayfa başına otel sayısı
     int totalItems = Model?.Count ?? 0;
     int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-    // URL'den mevcut sayfayı al (QueryString: ?page=1)
     int currentPage = 1;
     if (Context.Request.Query.ContainsKey("page"))
     {
         int.TryParse(Context.Request.Query["page"], out currentPage);
     }
 
-    // Sayfa sınırlarını koru
-    currentPage = currentPage < 1 ? 1 : (currentPage > totalPages ? totalPages : currentPage);
+    // Geçerli sayfa sınırlarını koru
+    currentPage = currentPage < 1 ? 1 : (currentPage > totalPages ? (totalPages > 0 ? totalPages : 1) : currentPage);
 
-    // Listeyi sayfaya göre parçala
-    var pagedHotels = Model.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    // Sayfalanmış otelleri al (Model null ise boş liste döndür)
+    var pagedHotels = Model != null ? Model.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList() : new List<Project6RapidApi.Dtos.HotelDtos.ResultHotelDto>();
 
-    // Otel numaralandırmasının doğru devam etmesi için başlangıç değeri
     int count = (currentPage - 1) * pageSize;
+
+    // Linkler için ortak parametreler
+    string commonParams = $"&city={cityParam}&arrival={arrivalStr}&departure={departureStr}";
 }
 
 <div class="page-main">
@@ -29,52 +49,69 @@
             <div class="sec-eyebrow">Editör Seçimi</div>
             <h2 class="sec-title" id="listing-title">Bu Sezon <em>Gitmeniz Gereken</em> Oteller</h2>
         </div>
-        <div class="sec-meta" id="listing-meta">@totalItems Destinasyon · Sayfa @currentPage / @totalPages</div>
+        <div class="sec-meta" id="listing-meta">@totalItems Destinasyon · Sayfa @currentPage / @(totalPages > 0 ? totalPages : 1)</div>
     </div>
 
-    <div class="hotel-grid">
-        @foreach (var item in pagedHotels)
-        {
-            count++;
-            string featuredClass = (count == 1 + ((currentPage - 1) * pageSize)) ? "hotel-card-featured" : "";
-            string animDelay = "d" + (count % pageSize == 0 ? pageSize : count % pageSize);
+    @if (pagedHotels.Any())
+    {
+        <div class="hotel-grid">
+            @foreach (var item in pagedHotels)
+            {
+                count++;
+                // Animasyon gecikmesi ve öne çıkan kart sınıfı
+                string featuredClass = (count == 1 + ((currentPage - 1) * pageSize)) ? "hotel-card-featured" : "";
+                string animDelay = "d" + (count % pageSize == 0 ? pageSize : count % pageSize);
 
-            <a class="hotel-card @featuredClass anim @animDelay" href="/Hotel/Hoteldetail/@item.hotel_id">
+                // Gecelik Fiyat Hesabı (Null Safe)
+                var totalPrice = item.priceBreakdown?.grossPrice?.value ?? 0;
+                var pricePerNight = totalPrice > 0 ? (totalPrice / totalNights) : 0;
+                var currency = item.priceBreakdown?.grossPrice?.currency ?? "USD";
 
-                <div class="cat-tag">@item.reviewScoreWord</div>
+                <a href="/Hotel/HotelDetail/@item.hotel_id?guests="
+                   onclick="this.href += document.getElementById('guests-select').value">
+                    Detayları Gör
+                    <div class="cat-tag">@(string.IsNullOrEmpty(item.reviewScoreWord) ? "Premium" : item.reviewScoreWord)</div>
 
-                <div class="rating-badge">
-                    <span class="rating-badge-num">@item.reviewScore.ToString("0.0")</span>
-                    <span class="rating-badge-label">Puan</span>
-                </div>
+                    <div class="rating-badge">
+                        <span class="rating-badge-num">@item.reviewScore.ToString("0.0")</span>
+                        <span class="rating-badge-label">Puan</span>
+                    </div>
 
-                <img class="hotel-card-img"
-                     src="@(item.photoUrls != null && item.photoUrls.Length > 0 ? item.photoUrls[0].Replace("square60", "square900") : "/images/default-hotel.jpg")"
-                     alt="@item.name"
-                     loading="lazy">
+                    <img class="hotel-card-img"
+                         src="@(item.photoUrls != null && item.photoUrls.Length > 0 ? item.photoUrls[0].Replace("square60", "square900") : "/images/default-hotel.jpg")"
+                         alt="@item.name"
+                         loading="lazy">
 
-                <div class="hotel-card-body">
-                    <div class="hotel-card-number">No. @count.ToString("D2") · @item.countryCode?.ToUpper()</div>
+                    <div class="hotel-card-body">
+                        <div class="hotel-card-number">No. @count.ToString("D2") · @(item.countryCode?.ToUpper() ?? "TR")</div>
 
-                    <div class="hotel-card-name">@item.name</div>
-                    <div class="hotel-card-loc">📍 @item.wishlistName, @item.countryCode</div>
+                        <div class="hotel-card-name">@item.name</div>
+                        <div class="hotel-card-loc">📍 @item.wishlistName, @item.countryCode</div>
 
-                    <div class="hotel-card-bottom">
-                        <div class="hotel-card-price">
-                            <span class="price-amount">@item.priceBreakdown?.grossPrice?.currency @item.priceBreakdown?.grossPrice?.value.ToString("N0")</span>
-                            <span class="price-night"> /gece</span>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:16px">
-                            <div class="hotel-card-stars">
-                                <span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span>
+                        <div class="hotel-card-bottom">
+                            <div class="hotel-card-price">
+                                <span class="price-amount">@currency @pricePerNight.ToString("N0")</span>
+                                <span class="price-night"> /gece</span>
                             </div>
-                            <span class="hotel-card-btn">İncele →</span>
+                            <div style="display:flex;align-items:center;gap:16px">
+                                <div class="hotel-card-stars">
+                                    <span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span>
+                                </div>
+                                <span class="hotel-card-btn">İncele →</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        }
-    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div style="text-align:center; padding:100px 20px; background:#f9f9f9; border-radius:20px; margin:20px 0;">
+            <h3 style="color:#999;">Aradığınız kriterlere uygun otel bulunamadı.</h3>
+            <p>Lütfen farklı bir şehir veya tarih aralığı deneyin ya da API kotasını kontrol edin.</p>
+        </div>
+    }
 
     @* --- SAYFALAMA NAVİGASYONU --- *@
     @if (totalPages > 1)
@@ -82,12 +119,12 @@
         <div class="pagination-wrapper" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 50px 0;">
             @if (currentPage > 1)
             {
-                <a href="?page=@(currentPage - 1)" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">← Önceki</a>
+                <a href="?page=@(currentPage - 1)@commonParams" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">← Önceki</a>
             }
 
             @for (int i = 1; i <= totalPages; i++)
             {
-                <a href="?page=@i"
+                <a href="?page=@i@commonParams"
                    style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; transition: all 0.3s;
                                   background: @(i == currentPage ? "#000" : "#f4f4f4");
                                   color: @(i == currentPage ? "#fff" : "#000");">
@@ -97,10 +134,11 @@
 
             @if (currentPage < totalPages)
             {
-                <a href="?page=@(currentPage + 1)" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">Sonraki →</a>
+                <a href="?page=@(currentPage + 1)@commonParams" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">Sonraki →</a>
             }
         </div>
     }
 
+    @* Dashboard bileşeni (Döviz, Hava Durumu vb.) *@
     @await Component.InvokeAsync("_HotelDashboardComponentPartial")
 </div>
