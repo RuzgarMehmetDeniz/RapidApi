@@ -13,18 +13,34 @@ namespace Project6RapidApi.ViewComponents.Hotel
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string city)
+        // cityId: Booking'in beklediği dest_id (Örn: -126693)
+        // cityName: Filtreleme için kullanılacak şehir adı (Örn: "Paris")
+        public async Task<IViewComponentResult> InvokeAsync(string cityId, string cityName)
         {
+            // 1. Dinamik Tarih Ayarı (Şu anki zamana göre 1 hafta sonrası için ayarlandı)
+            string checkin = DateTime.Now.AddDays(7).ToString("yyyy-MM-dd");
+            string checkout = DateTime.Now.AddDays(12).ToString("yyyy-MM-dd");
+
+            // Eğer dışarıdan bir cityId gelmezse varsayılan bir ID ata
+            var finalDestId = string.IsNullOrEmpty(cityId) ? "-126693" : cityId;
+
             var client = _httpClientFactory.CreateClient();
+            var requestUri = $"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels" +
+                             $"?dest_id={finalDestId}" +
+                             $"&search_type=CITY" +
+                             $"&arrival_date={checkin}" +
+                             $"&departure_date={checkout}" +
+                             $"&adults=2&room_qty=1&page_number=1&units=metric&currency_code=USD";
+
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date=2026-05-10&departure_date=2026-05-15&adults=2&room_qty=1&page_number=1&units=metric&currency_code=USD"),
+                RequestUri = new Uri(requestUri),
                 Headers =
-        {
-            { "x-rapidapi-key", "ApiKey" }, // ApiKey yerine kendi keyini yazdım
-            { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
-        },
+                {
+                    { "x-rapidapi-key", "ApiKey" }, // Kendi anahtarını buraya ekle
+                    { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
+                },
             };
 
             var hotelList = new List<ResultHotelDto>();
@@ -44,7 +60,7 @@ namespace Project6RapidApi.ViewComponents.Hotel
                             {
                                 hotelList.Add(new ResultHotelDto
                                 {
-                                    hotel_id = (int)item.hotel_id,
+                                    hotel_id = (int?)item.hotel_id ?? 0,
                                     name = (string)item.property.name,
                                     wishlistName = (string)item.property.wishlistName,
                                     photoUrls = item.property.photoUrls?.ToObject<string[]>() ?? new string[0],
@@ -62,12 +78,24 @@ namespace Project6RapidApi.ViewComponents.Hotel
                     }
                 }
             }
-            catch { /* Hata yutulur, boş liste döner */ }
+            catch { /* Hata durumunda boş liste döner */ }
 
-            // Şehir bazlı filtrele, eğer şehir uyuşmuyorsa rastgele 3 tanesini getir (Boş kalmaması için)
-            var values = hotelList.Where(x => x.wishlistName == city).ToList();
-            if (!values.Any()) values = hotelList.OrderBy(x => Guid.NewGuid()).Take(3).ToList();
-            else values = values.OrderBy(x => Guid.NewGuid()).Take(3).ToList();
+            // 2. Dinamik Filtreleme ve Rastgeleleştirme
+            // Kullanıcıdan gelen cityName'e göre filtrele (null kontrolü ile)
+            var values = hotelList
+                .Where(x => !string.IsNullOrEmpty(cityName) &&
+                            x.wishlistName.Contains(cityName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            // Eğer filtreye uygun otel bulunamadıysa listeden rastgele 3 tane seç
+            if (!values.Any())
+            {
+                values = hotelList.OrderBy(x => Guid.NewGuid()).Take(3).ToList();
+            }
+            else
+            {
+                values = values.OrderBy(x => Guid.NewGuid()).Take(3).ToList();
+            }
 
             return View(values);
         }

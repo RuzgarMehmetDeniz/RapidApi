@@ -13,38 +13,53 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string city, string arrival, string departure, string guests)
+        // Metodu tam dinamik yaptık: Lokasyon ID (cityId), tarihler ve misafir bilgisi dışarıdan gelir.
+        public async Task<IViewComponentResult> InvokeAsync(string cityId, string arrival, string departure, string guests)
         {
-            // Tarihlerin boş gelme ihtimaline karşı varsayılan değerler (Örn: Bugün ve Yarın)
-            var checkin = string.IsNullOrEmpty(arrival);
-            var checkout = string.IsNullOrEmpty(departure);
+            // 1. Dinamik Şehir/Lokasyon Kontrolü
+            // Eğer dışarıdan ID gelmezse varsayılan bir ID (Örn: Paris veya İstanbul) set edebilirsin.
+            var finalDestId = string.IsNullOrEmpty(cityId) ? "-126693" : cityId;
 
-            // Misafir ve Oda sayısını eşleme
-            int adults = 2; // Varsayılan
-            int rooms = 1;  // Varsayılan
+            // 2. Dinamik Tarih Kontrolü (Hata almamak için boşsa bugünü ve yarını ata)
+            var checkin = string.IsNullOrEmpty(arrival) ? DateTime.Now.ToString("yyyy-MM-dd") : arrival;
+            var checkout = string.IsNullOrEmpty(departure) ? DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") : departure;
+
+            // 3. Misafir ve Oda Sayısı Hesaplama
+            int adults = 2;
+            int rooms = 1;
 
             switch (guests)
             {
-                case "1": adults = 1; rooms = 1; break; // 1 Misafir, 1 Oda
-                case "2": adults = 2; rooms = 1; break; // 2 Misafir, 1 Oda
-                case "3": adults = 3; rooms = 1; break; // 3 Misafir, 1 Oda
-                case "4": adults = 2; rooms = 2; break; // 2 Misafir, 2 Oda
-                case "5": adults = 3; rooms = 2; break; // 3 Misafir, 2 Oda
-                case "6": adults = 4; rooms = 3; break; // 4 Misafir, 3 Oda
+                case "1": adults = 1; rooms = 1; break;
+                case "2": adults = 2; rooms = 1; break;
+                case "3": adults = 3; rooms = 1; break;
+                case "4": adults = 2; rooms = 2; break;
+                case "5": adults = 3; rooms = 2; break;
+                case "6": adults = 4; rooms = 3; break;
                 default: adults = 2; rooms = 1; break;
             }
 
             var client = _httpClientFactory.CreateClient();
+
+            // URL içindeki dest_id, tarihler, yetişkin ve oda sayısı tamamen dinamik oldu.
+            var requestUri = $"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels" +
+                             $"?dest_id={finalDestId}" +
+                             $"&search_type=CITY" +
+                             $"&arrival_date={checkin}" +
+                             $"&departure_date={checkout}" +
+                             $"&adults={adults}" +
+                             $"&room_qty={rooms}" +
+                             $"&page_number=1&units=metric&currency_code=USD";
+
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                // URL içinde adults={adults} ve room_qty={rooms} olarak güncellendi
-                RequestUri = new Uri($"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date={checkin}&departure_date={checkout}&adults={adults}&room_qty={rooms}&page_number=1&units=metric&currency_code=USD"),
+                RequestUri = new Uri(requestUri),
                 Headers =
-        {
-            { "x-rapidapi-key", "ApiKey" },
-            { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
-        },
+                {
+                    { "x-rapidapi-key", "ApiKey" }, 
+                    { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
+                },
             };
 
             var values = new List<ResultHotelDto>();
@@ -85,7 +100,10 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Hata durumunda boş liste döner, istersen buraya log ekleyebilirsin.
+            }
 
             return View(values);
         }
