@@ -16,8 +16,8 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
         public async Task<IViewComponentResult> InvokeAsync(string city, string arrival, string departure, string guests)
         {
             // Tarihlerin boş gelme ihtimaline karşı varsayılan değerler (Örn: Bugün ve Yarın)
-            var checkin = string.IsNullOrEmpty(arrival) ? "2026-05-10" : arrival;
-            var checkout = string.IsNullOrEmpty(departure) ? "2026-05-11" : departure;
+            var checkin = string.IsNullOrEmpty(arrival);
+            var checkout = string.IsNullOrEmpty(departure);
 
             // Misafir ve Oda sayısını eşleme
             int adults = 2; // Varsayılan
@@ -42,7 +42,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                 RequestUri = new Uri($"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date={checkin}&departure_date={checkout}&adults={adults}&room_qty={rooms}&page_number=1&units=metric&currency_code=USD"),
                 Headers =
         {
-            { "x-rapidapi-key", "6a6a4ee341msh8f7155de290c680p1839b7jsnd76f6801b9a8" },
+            { "x-rapidapi-key", "ApiKey" },
             { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
         },
             };

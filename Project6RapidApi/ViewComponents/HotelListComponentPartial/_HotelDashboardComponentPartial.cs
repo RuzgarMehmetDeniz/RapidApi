@@ -10,10 +10,10 @@ namespace Project6RapidApi.ViewComponents
         private readonly IHttpClientFactory _httpClientFactory;
 
         // --- HER API İÇİN AYRI API KEY TANIMLAMALARI ---
-        private const string CurrencyApiKey = "e48de61759msh8ba908c8116f9f5p146effjsnde652bee2077";
-        private const string WeatherApiKey = "e48de61759msh8ba908c8116f9f5p146effjsnde652bee2077";
-        private const string CryptoApiKey = "e48de61759msh8ba908c8116f9f5p146effjsnde652bee2077";
-        private const string FuelApiKey = "e48de61759msh8ba908c8116f9f5p146effjsnde652bee2077";
+        private const string CurrencyApiKey = "ApiKey";
+        private const string WeatherApiKey = "ApiKey";
+        private const string CryptoApiKey = "ApiKey";
+        private const string FuelApiKey = "ApiKey";
 
         public _HotelDashboardComponentPartial(IHttpClientFactory httpClientFactory)
         {

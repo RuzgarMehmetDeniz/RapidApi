@@ -22,7 +22,7 @@ namespace Project6RapidApi.ViewComponents.Hotel
                 RequestUri = new Uri("https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?dest_id=-126693&search_type=CITY&arrival_date=2026-05-10&departure_date=2026-05-15&adults=2&room_qty=1&page_number=1&units=metric&currency_code=USD"),
                 Headers =
         {
-            { "x-rapidapi-key", "6a6a4ee341msh8f7155de290c680p1839b7jsnd76f6801b9a8" }, // ApiKey yerine kendi keyini yazdım
+            { "x-rapidapi-key", "ApiKey" }, // ApiKey yerine kendi keyini yazdım
             { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
         },
             };
