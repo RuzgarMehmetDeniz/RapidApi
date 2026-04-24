@@ -39,6 +39,5 @@ Atlas paneli, 4 farklı dikeyde anlık veri akışı sağlamaktadır:
 * **Kütüphaneler:** `Newtonsoft.Json`, `Microsoft.Extensions.Http`
 
 ---
-
-# <img width="1361" height="2834" alt="List" src="https://github.com/user-attachments/assets/e12f0abc-72c6-43ae-9581-2fc882d2df66" />
-# <img width="1361" height="2226" alt="Detail" src="https://github.com/user-attachments/assets/8d83243d-c5cd-442f-b111-7a91e3065c90" />
+# <img width="1356" height="2705" alt="OtelListeleme" src="https://github.com/user-attachments/assets/d1514895-dec6-4869-be19-9e9ea5078d8d" />
+# <img width="1364" height="1516" alt="DetailSayfası" src="https://github.com/user-attachments/assets/321ab52e-0cc7-461d-9b6f-22dbe2e97ef0" />
