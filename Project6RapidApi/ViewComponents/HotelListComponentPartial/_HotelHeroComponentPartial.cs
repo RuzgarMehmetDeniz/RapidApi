@@ -34,7 +34,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                 RequestUri = new Uri(requestUri),
                 Headers =
         {
-            { "x-rapidapi-key", "SENIN_API_KEYIN" }, 
+            { "x-rapidapi-key", "SENIN_API_KEYIN" },
             { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
         },
             };

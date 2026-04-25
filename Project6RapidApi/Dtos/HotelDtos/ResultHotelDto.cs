@@ -5,17 +5,14 @@
         public int hotel_id { get; set; }
         public string name { get; set; }
         public string countryCode { get; set; }
-        public string wishlistName { get; set; } // Genelde şehir adı burada yazar
+        public string wishlistName { get; set; }
         public float reviewScore { get; set; }
         public string reviewScoreWord { get; set; }
-        public string[] photoUrls { get; set; } // 1. ve 2-3. fotoğraflar buradan
-        public string accessibilityLabel { get; set; } // Açıklama benzeri özet bilgi
-        public float latitude { get; set; } // Konum
-        public float longitude { get; set; } // Konum
+        public string accessibilityLabel { get; set; } // Hata veren eksik alan
+        public string[] photoUrls { get; set; }
+        public float latitude { get; set; }
+        public float longitude { get; set; }
         public PriceBreakdown priceBreakdown { get; set; }
-
-        // Bu iki alan detay endpoint'inden geldiği için şimdilik null dönebilir
-        // Ancak mimari hazır olsun diye ekliyoruz:
         public List<string> FeaturedFeatures { get; set; }
         public List<string> NearbyPlaces { get; set; }
     }
@@ -31,4 +28,3 @@
         public string currency { get; set; }
     }
 }
-

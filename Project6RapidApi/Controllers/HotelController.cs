@@ -67,7 +67,7 @@ namespace Project6RapidApi.Controllers
                 RequestUri = new Uri(requestUri),
                 Headers =
         {
-            { "x-rapidapi-key", "ApiKey" }, 
+            { "x-rapidapi-key", "ApiKey" },
             { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
         },
             };

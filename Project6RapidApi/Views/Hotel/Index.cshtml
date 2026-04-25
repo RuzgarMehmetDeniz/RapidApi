@@ -1,5 +1,5 @@
-﻿@{
-    Layout = null;
+﻿﻿@{
+Layout = null;
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -60,7 +60,7 @@
 
     <!-- LISTING -->
     @await Component.InvokeAsync("_HotelListingComponentPartial", new {
-    city = Context.Request.Query["city"].ToString(),
+        city = Context.Request.Query["city"].ToString(),
         arrival = Context.Request.Query["arrival"].ToString(),
         departure = Context.Request.Query["departure"].ToString()
         })
