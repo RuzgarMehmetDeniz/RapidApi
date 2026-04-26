@@ -7,7 +7,6 @@
 
     int totalNights = 1;
 
-    // Eğer tarihler parse edilebiliyorsa gece sayısını hesapla
     if (DateTime.TryParse(arrivalStr, out DateTime start) && DateTime.TryParse(departureStr, out DateTime end))
     {
         totalNights = (end - start).Days;
@@ -15,12 +14,11 @@
     }
     else
     {
-        // İlk açılışta veya geçersiz tarihte varsayılan (API'deki tarih aralığı 7 gün)
         totalNights = 7;
     }
 
     // --- SAYFALAMA MANTIĞI ---
-    int pageSize = 5; // Sayfa başına otel sayısı
+    int pageSize = 6;
     int totalItems = Model?.Count ?? 0;
     int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
@@ -30,17 +28,22 @@
         int.TryParse(Context.Request.Query["page"], out currentPage);
     }
 
-    // Geçerli sayfa sınırlarını koru
     currentPage = currentPage < 1 ? 1 : (currentPage > totalPages ? (totalPages > 0 ? totalPages : 1) : currentPage);
-
-    // Sayfalanmış otelleri al (Model null ise boş liste döndür)
     var pagedHotels = Model != null ? Model.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList() : new List<Project6RapidApi.Dtos.HotelDtos.ResultHotelDto>();
 
     int count = (currentPage - 1) * pageSize;
-
-    // Linkler için ortak parametreler
     string commonParams = $"&city={cityParam}&arrival={arrivalStr}&departure={departureStr}";
 }
+
+<style>
+    /* Mavi yazıları ve alt çizgileri kökten çözen stil */
+    .hotel-card-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block;
+        position: relative;
+    }
+</style>
 
 <div class="page-main">
     <div class="sec-head">
@@ -57,18 +60,17 @@
             @foreach (var item in pagedHotels)
             {
                 count++;
-                // Animasyon gecikmesi ve öne çıkan kart sınıfı
                 string featuredClass = (count == 1 + ((currentPage - 1) * pageSize)) ? "hotel-card-featured" : "";
-                string animDelay = "d" + (count % pageSize == 0 ? pageSize : count % pageSize);
 
-                // Gecelik Fiyat Hesabı (Null Safe)
                 var totalPrice = item.priceBreakdown?.grossPrice?.value ?? 0;
                 var pricePerNight = totalPrice > 0 ? (totalPrice / totalNights) : 0;
                 var currency = item.priceBreakdown?.grossPrice?.currency ?? "USD";
 
-                <a href="/Hotel/HotelDetail/@item.hotel_id?guests="
+                @* Link etiketini temizledim ve class ekledim *@
+                <a href="/Hotel/HotelDetail/@item.hotel_id?destId=@cityParam&arrival=@arrivalStr&departure=@departureStr&guests="
+                   class="hotel-card-link @featuredClass"
                    onclick="this.href += document.getElementById('guests-select').value">
-                    Detayları Gör
+
                     <div class="cat-tag">@(string.IsNullOrEmpty(item.reviewScoreWord) ? "Premium" : item.reviewScoreWord)</div>
 
                     <div class="rating-badge">
@@ -106,38 +108,37 @@
     }
     else
     {
-        <div style="text-align:center; padding:100px 20px; background:#f9f9f9; border-radius:20px; margin:20px 0;">
-            <h3 style="color:#999;">Aradığınız kriterlere uygun otel bulunamadı.</h3>
-            <p>Lütfen farklı bir şehir veya tarih aralığı deneyin ya da API kotasını kontrol edin.</p>
+        <div style="text-align:center; padding:100px 20px; background:rgba(255,255,255,0.05); border-radius:20px; margin:20px 0; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+            <h3 style="color:rgba(255,255,255,0.5);">Sonuç Bulunamadı</h3>
+            <p style="color:rgba(255,255,255,0.3);">Lütfen arama kriterlerini değiştirin veya API kotanızı kontrol edin.</p>
         </div>
     }
 
-    @* --- SAYFALAMA NAVİGASYONU --- *@
     @if (totalPages > 1)
     {
-        <div class="pagination-wrapper" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin: 50px 0;">
+        <div class="pagination-wrapper" style="display: flex; justify-content: center; align-items: center; gap: 12px; margin: 60px 0;">
             @if (currentPage > 1)
             {
-                <a href="?page=@(currentPage - 1)@commonParams" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">← Önceki</a>
+                <a href="?page=@(currentPage - 1)@commonParams" style="padding: 12px 25px; border-radius: 50px; background: rgba(255,255,255,0.1); text-decoration: none; color: #fff; font-weight: 500; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;">← Önceki</a>
             }
 
             @for (int i = 1; i <= totalPages; i++)
             {
                 <a href="?page=@i@commonParams"
                    style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; transition: all 0.3s;
-                                  background: @(i == currentPage ? "#000" : "#f4f4f4");
-                                  color: @(i == currentPage ? "#fff" : "#000");">
+                                  background: @(i == currentPage ? "#fff" : "rgba(255,255,255,0.05)");
+                                  color: @(i == currentPage ? "#000" : "#fff");
+                                  border: 1px solid rgba(255,255,255,0.1);">
                     @i
                 </a>
             }
 
             @if (currentPage < totalPages)
             {
-                <a href="?page=@(currentPage + 1)@commonParams" style="padding: 12px 20px; border-radius: 50px; background: #f4f4f4; text-decoration: none; color: #000; font-weight: 600;">Sonraki →</a>
+                <a href="?page=@(currentPage + 1)@commonParams" style="padding: 12px 25px; border-radius: 50px; background: rgba(255,255,255,0.1); text-decoration: none; color: #fff; font-weight: 500; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;">Sonraki →</a>
             }
         </div>
     }
 
-    @* Dashboard bileşeni (Döviz, Hava Durumu vb.) *@
-    @await Component.InvokeAsync("_HotelDashboardComponentPartial")
+    // @await Component.InvokeAsync("_HotelDashboardComponentPartial")
 </div>

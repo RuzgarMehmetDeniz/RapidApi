@@ -8,40 +8,73 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
     public class _HotelListingComponentPartial : ViewComponent
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public _HotelListingComponentPartial(IHttpClientFactory httpClientFactory)
+
+        public _HotelListingComponentPartial(IHttpClientFactory _httpClientFactory)
         {
-            _httpClientFactory = httpClientFactory;
+            this._httpClientFactory = _httpClientFactory;
         }
 
-        // Metodu tam dinamik yaptık: Lokasyon ID (cityId), tarihler ve misafir bilgisi dışarıdan gelir.
-        public async Task<IViewComponentResult> InvokeAsync(string cityId, string arrival, string departure, string guests)
+        public async Task<IViewComponentResult> InvokeAsync(string city, string arrival, string departure, string guests)
         {
-            // 1. Dinamik Şehir/Lokasyon Kontrolü
-            // Eğer dışarıdan ID gelmezse varsayılan bir ID (Örn: Paris veya İstanbul) set edebilirsin.
-            var finalDestId = string.IsNullOrEmpty(cityId) ? "-126693" : cityId;
+            var client = _httpClientFactory.CreateClient();
+            var values = new List<ResultHotelDto>();
+            string apiKey = "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44"; // Tek merkezden yönetim
 
-            // 2. Dinamik Tarih Kontrolü (Hata almamak için boşsa bugünü ve yarını ata)
+            // 1. ADIM: Güvenlik Kontrolü
+            if (string.IsNullOrEmpty(city)) return View(values);
+
+            // Türkçe karakterleri ve boşlukları URL'e uygun hale getiriyoruz (Örn: İstanbul -> %C4%B0stanbul)
+            var safeCity = Uri.EscapeDataString(city);
+
+            // 2. ADIM: Şehir Adından Dest_ID Al
+            string finalDestId = "";
+            var locRequest = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchDestination?query={safeCity}"),
+                Headers =
+                {
+                    { "x-rapidapi-key", apiKey },
+                    { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
+                },
+            };
+
+            using (var locResponse = await client.SendAsync(locRequest))
+            {
+                if (locResponse.IsSuccessStatusCode)
+                {
+                    var locBody = await locResponse.Content.ReadAsStringAsync();
+                    var locData = JsonConvert.DeserializeObject<dynamic>(locBody);
+
+                    if (locData?.data != null && locData.data.Count > 0)
+                    {
+                        finalDestId = locData.data[0].dest_id;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(finalDestId)) return View(values);
+
+            // 3. ADIM: Tarih ve Misafir Ayarları
             var checkin = string.IsNullOrEmpty(arrival) ? DateTime.Now.ToString("yyyy-MM-dd") : arrival;
             var checkout = string.IsNullOrEmpty(departure) ? DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") : departure;
 
-            // 3. Misafir ve Oda Sayısı Hesaplama
-            int adults = 2;
-            int rooms = 1;
-
-            switch (guests)
+            // Misafir sayısına göre oda ve yetişkin ayarı
+            int adults = 2, rooms = 1;
+            if (!string.IsNullOrEmpty(guests))
             {
-                case "1": adults = 1; rooms = 1; break;
-                case "2": adults = 2; rooms = 1; break;
-                case "3": adults = 3; rooms = 1; break;
-                case "4": adults = 2; rooms = 2; break;
-                case "5": adults = 3; rooms = 2; break;
-                case "6": adults = 4; rooms = 3; break;
-                default: adults = 2; rooms = 1; break;
+                switch (guests)
+                {
+                    case "1": adults = 1; rooms = 1; break;
+                    case "2": adults = 2; rooms = 1; break;
+                    case "3": adults = 3; rooms = 1; break;
+                    case "4": adults = 2; rooms = 2; break;
+                    case "5": adults = 3; rooms = 2; break;
+                    case "6": adults = 4; rooms = 3; break;
+                }
             }
 
-            var client = _httpClientFactory.CreateClient();
-
-            // URL içindeki dest_id, tarihler, yetişkin ve oda sayısı tamamen dinamik oldu.
+            // 4. ADIM: Otelleri Listele
             var requestUri = $"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels" +
                              $"?dest_id={finalDestId}" +
                              $"&search_type=CITY" +
@@ -57,12 +90,10 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                 RequestUri = new Uri(requestUri),
                 Headers =
                 {
-                    { "x-rapidapi-key", "ApiKey" },
+                    { "x-rapidapi-key", apiKey },
                     { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
                 },
             };
-
-            var values = new List<ResultHotelDto>();
 
             try
             {
@@ -81,11 +112,11 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                                 {
                                     hotel_id = (int?)item.hotel_id ?? 0,
                                     name = (string)item.property.name,
-                                    wishlistName = (string)item.property.wishlistName,
-                                    countryCode = (string)item.property.countryCode,
                                     reviewScore = (float?)item.property.reviewScore ?? 0,
                                     reviewScoreWord = (string)item.property.reviewScoreWord,
                                     photoUrls = item.property.photoUrls?.ToObject<string[]>() ?? new string[0],
+                                    wishlistName = (string)item.property.wishlistName,
+                                    countryCode = (string)item.property.countryCode,
                                     priceBreakdown = new PriceBreakdown
                                     {
                                         grossPrice = new GrossPrice
@@ -100,10 +131,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                // Hata durumunda boş liste döner, istersen buraya log ekleyebilirsin.
-            }
+            catch { /* Hata yönetimi */ }
 
             return View(values);
         }

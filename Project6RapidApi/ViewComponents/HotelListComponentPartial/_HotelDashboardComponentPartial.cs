@@ -9,10 +9,10 @@ namespace Project6RapidApi.ViewComponents
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
-        private const string CurrencyApiKey = "ApiKey";
-        private const string WeatherApiKey = "ApiKey";
-        private const string CryptoApiKey = "ApiKey";
-        private const string FuelApiKey = "ApiKey";
+        private const string CurrencyApiKey = "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44";
+        private const string WeatherApiKey = "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44";
+        private const string CryptoApiKey = "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44";
+        private const string FuelApiKey = "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44";
 
         public _HotelDashboardComponentPartial(IHttpClientFactory httpClientFactory)
         {

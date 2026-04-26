@@ -12,64 +12,51 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string destId, DateTime arrivalDate, DateTime departureDate, int adults = 2, int roomQty = 1)
+        public async Task<IViewComponentResult> InvokeAsync(string destId, string arrivalDate, string departureDate, int adults = 2, int roomQty = 1)
         {
             var client = _httpClientFactory.CreateClient();
+            var checkin = string.IsNullOrEmpty(arrivalDate) ? DateTime.Now.ToString("yyyy-MM-dd") : arrivalDate;
+            var checkout = string.IsNullOrEmpty(departureDate) ? DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") : departureDate;
 
-            string arrival = arrivalDate.ToString("yyyy-MM-dd");
-            string departure = departureDate.ToString("yyyy-MM-dd");
-
-            var requestUri = $"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels" +
-                             $"?dest_id={destId}" +
-                             $"&search_type=CITY" +
-                             $"&arrival_date={arrival}" +
-                             $"&departure_date={departure}" +
-                             $"&adults={adults}" +
-                             $"&room_qty={roomQty}" +
-                             $"&page_number=1&units=metric&temperature_unit=c&languagecode=en-us&currency_code=USD";
+            var requestUri = $"https://booking-com.p.rapidapi.com/v1/hotels/search?dest_id={destId}&search_type=city&arrival_date={checkin}&departure_date={checkout}&adults_number={adults}&room_number={roomQty}&units=metric&currency=USD&locale=en-gb";
 
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(requestUri),
-                Headers =
-        {
-            { "x-rapidapi-key", "SENIN_API_KEYIN" },
-            { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
-        },
+                Headers = {
+                    { "x-rapidapi-key", "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44" },
+                    { "x-rapidapi-host", "booking-com.p.rapidapi.com" },
+                },
             };
 
             try
             {
                 using (var response = await client.SendAsync(request))
                 {
-                    response.EnsureSuccessStatusCode();
-                    var body = await response.Content.ReadAsStringAsync();
-                    var apiResponse = JsonConvert.DeserializeObject<dynamic>(body);
-
-                    // API'den veri gelip gelmediğini kontrol ediyoruz
-                    if (apiResponse?.data?.hotels != null)
+                    if (response.IsSuccessStatusCode)
                     {
-                        // Artık sadece ilk oteli değil, tüm listeyi de çekebilirsin. 
-                        var firstHotelJson = apiResponse.data.hotels[0];
+                        var body = await response.Content.ReadAsStringAsync();
+                        var apiResponse = JsonConvert.DeserializeObject<dynamic>(body);
 
-                        if (firstHotelJson != null)
+                        // Booking API bazen "result" bazen "data" içinde döner. İkisini de kontrol ediyoruz:
+                        var hotelList = apiResponse?.result ?? apiResponse?.data?.hotels ?? apiResponse;
+
+                        if (hotelList != null && hotelList.Count > 0)
                         {
+                            var firstHotel = hotelList[0];
                             var value = new ResultHotelDto
                             {
-                                hotel_id = (int)firstHotelJson.hotel_id,
-                                name = (string)firstHotelJson.property.name,
-                                countryCode = (string)firstHotelJson.property.countryCode,
-                                wishlistName = (string)firstHotelJson.property.wishlistName,
-                                reviewScore = (float?)firstHotelJson.property.reviewScore ?? 0,
-                                reviewScoreWord = (string)firstHotelJson.property.reviewScoreWord,
-                                photoUrls = firstHotelJson.property.photoUrls?.ToObject<string[]>() ?? new string[0],
+                                hotel_id = (int?)firstHotel.hotel_id ?? 0,
+                                name = (string)(firstHotel.hotel_name ?? firstHotel.property?.name),
+                                reviewScore = (float?)(firstHotel.review_score ?? firstHotel.property?.reviewScore) ?? 0,
+                                photoUrls = new string[] { (string)(firstHotel.main_photo_url ?? firstHotel.property?.photoUrls?[0]) },
                                 priceBreakdown = new PriceBreakdown
                                 {
                                     grossPrice = new GrossPrice
                                     {
-                                        value = (float?)firstHotelJson.property.priceBreakdown?.grossPrice?.value ?? 0,
-                                        currency = (string)firstHotelJson.property.priceBreakdown?.grossPrice?.currency ?? "USD"
+                                        value = (float?)(firstHotel.min_total_price ?? firstHotel.property?.priceBreakdown?.grossPrice?.value) ?? 0,
+                                        currency = "USD"
                                     }
                                 }
                             };
@@ -78,10 +65,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                // Hata loglanabilir: Console.WriteLine(ex.Message);
-            }
+            catch (Exception) { /* Loglama eklenebilir */ }
 
             return View(new ResultHotelDto());
         }

@@ -1,69 +1,78 @@
-﻿﻿@{
-Layout = null;
+﻿@model List<Project6RapidApi.Dtos.HotelDtos.ResultHotelDto>
+@{
+    Layout = null;
 }
 <!DOCTYPE html>
 <html lang="tr">
 
-    @await Component.InvokeAsync("_HotelHeadComponentPartial")
-
+@await Component.InvokeAsync("_HotelHeadComponentPartial")
 
 <body>
 
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursor-ring"></div>
 
-    <!-- NAV -->
     @await Component.InvokeAsync("_HotelNavbarComponentPartial")
 
-    <!-- HERO -->
-    @await Component.InvokeAsync("_HotelHeroComponentPartial")
+    @* Index.cshtml içindeki Hero çağrısını şu şekilde güncelle *@
+    @await Component.InvokeAsync("_HotelHeroComponentPartial", new {
+    // destId yoksa city parametresini gönderiyoruz, Component içinde city üzerinden ID bulacağız
+    destId = Context.Request.Query["destId"].ToString(),
+        arrivalDate = Context.Request.Query["arrival"].ToString(),
+        departureDate = Context.Request.Query["departure"].ToString()
+        })
 
-    <!-- MARQUEE -->
     @await Component.InvokeAsync("_HotelMarqueeComponentPartial")
 
-    <!-- SEARCH -->
     <div class="search-section" id="search-section">
         <div class="search-label">Otel Arama</div>
-
         <form method="get">
-            <div class="search-section" id="search-section">
-                <div class="search-label">Otel Arama</div>
-                <div class="search-row">
-                    <div class="sf">
-                        <div class="sf-label">Destinasyon</div>
-                        <input type="text" name="city" value="@Context.Request.Query["city"]" placeholder="Şehir veya otel adı...">
-                    </div>
-                    <div class="sf">
-                        <div class="sf-label">Giriş</div>
-                        <input type="date" name="arrival" value="@Context.Request.Query["arrival"]" style="color-scheme:light;">
-                    </div>
-                    <div class="sf">
-                        <div class="sf-label">Çıkış</div>
-                        <input type="date" name="departure" value="@Context.Request.Query["departure"]" style="color-scheme:light;">
-                    </div>
-                    <div class="sf">
-                        <div class="sf-label">Misafir</div>
-                        <select name="guests" id="guests-select">
-                            <option value="1">1 Misafir, 1 Oda</option>
-                            <option value="2">2 Misafir, 1 Oda</option>
-                            <option value="3">3 Misafir, 1 Oda</option>
-                            <option value="4">2 Misafir, 2 Oda</option>
-                            <option value="5">3 Misafir, 2 Oda</option>
-                            <option value="6">4 Misafir, 3 Oda</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="search-submit"><span>⌕</span> Ara</button>
+            <div class="search-row">
+                <div class="sf">
+                    <div class="sf-label">Destinasyon</div>
+                    <input type="text" name="city" value="@Context.Request.Query["city"]" placeholder="Şehir veya otel adı..." required>
                 </div>
+                <div class="sf">
+                    <div class="sf-label">Giriş</div>
+                    <input type="date" name="arrival" value="@Context.Request.Query["arrival"]" style="color-scheme:light;">
+                </div>
+                <div class="sf">
+                    <div class="sf-label">Çıkış</div>
+                    <input type="date" name="departure" value="@Context.Request.Query["departure"]" style="color-scheme:light;">
+                </div>
+                <div class="sf">
+                    <div class="sf-label">Misafir</div>
+                    <select name="guests" id="guests-select">
+                        <option value="1" selected="@(Context.Request.Query["guests"] == "1")">1 Misafir, 1 Oda</option>
+                        <option value="2" selected="@(Context.Request.Query["guests"] == "2")">2 Misafir, 1 Oda</option>
+                        <option value="3" selected="@(Context.Request.Query["guests"] == "3")">3 Misafir, 1 Oda</option>
+                        <option value="4" selected="@(Context.Request.Query["guests"] == "4")">2 Misafir, 2 Oda</option>
+                        <option value="5" selected="@(Context.Request.Query["guests"] == "5")">3 Misafir, 2 Oda</option>
+                        <option value="6" selected="@(Context.Request.Query["guests"] == "6")">4 Misafir, 3 Oda</option>
+                    </select>
+                </div>
+                <button type="submit" class="search-submit"><span>⌕</span> Ara</button>
             </div>
         </form>
     </div>
 
-    <!-- LISTING -->
-    @await Component.InvokeAsync("_HotelListingComponentPartial", new {
-        city = Context.Request.Query["city"].ToString(),
-        arrival = Context.Request.Query["arrival"].ToString(),
-        departure = Context.Request.Query["departure"].ToString()
-        })
+    <div class="container mt-5">
+        @if (!string.IsNullOrEmpty(Context.Request.Query["city"]))
+        {
+            @await Component.InvokeAsync("_HotelListingComponentPartial", new {
+            city = Context.Request.Query["city"].ToString(),
+                arrival = Context.Request.Query["arrival"].ToString(),
+                departure = Context.Request.Query["departure"].ToString(),
+                guests = Context.Request.Query["guests"].ToString()
+                })
+                }
+                else
+        {
+            <div class="text-center py-5">
+                <h3 style="color: rgba(255,255,255,0.6);">Keşfetmeye başlamak için bir şehir arayın.</h3>
+            </div>
+        }
+    </div>
 
     <footer>
         <div class="footer-logo">ATL<span>A</span>S</div>
