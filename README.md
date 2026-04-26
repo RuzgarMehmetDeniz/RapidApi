@@ -1,4 +1,3 @@
-<img width="1493" height="734" alt="hero" src="https://github.com/user-attachments/assets/0c0658c6-df65-4d9c-b093-56e9110c0cf2" />
 # 🌍 Atlas: API-Driven Real-Time Dashboard
 
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core_8.0-black?style=for-the-badge&logo=dotnet)
