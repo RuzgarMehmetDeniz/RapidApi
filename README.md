@@ -1,3 +1,4 @@
+<img width="1493" height="734" alt="hero" src="https://github.com/user-attachments/assets/0c0658c6-df65-4d9c-b093-56e9110c0cf2" />
 # 🌍 Atlas: API-Driven Real-Time Dashboard
 
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core_8.0-black?style=for-the-badge&logo=dotnet)
@@ -39,11 +40,11 @@ Atlas paneli, 4 farklı dikeyde anlık veri akışı sağlamaktadır:
 * **Kütüphaneler:** `Newtonsoft.Json`, `Microsoft.Extensions.Http`
 
 ---
+# <img width="1493" height="734" alt="hero" src="https://github.com/user-attachments/assets/42b4360b-ad68-47f8-8027-922b6eb4cd53" />
 # <img width="1364" height="134" alt="Milano" src="https://github.com/user-attachments/assets/01269a0f-6945-4cf7-a2cd-3f4116dca02e" />
-
-
 # <img width="1018" height="505" alt="Milano2" src="https://github.com/user-attachments/assets/4659c304-08b9-4924-b9e2-db4593bee4d3" />
 # <img width="1364" height="505" alt="Milano3" src="https://github.com/user-attachments/assets/e45c65a5-c7f4-4f21-96cf-fd917acf2e3e" />
 # <img width="1364" height="486" alt="Listeleme2" src="https://github.com/user-attachments/assets/b3c1f134-e3a9-4827-ae8a-dc4f6b897134" />
 # <img width="1364" height="562" alt="Listeleme1" src="https://github.com/user-attachments/assets/820c43b8-fd07-405f-aa3b-6a13d54d88e2" />
+# <img width="1364" height="366" alt="AltVeriler" src="https://github.com/user-attachments/assets/11ebab97-ae68-4aa3-8fd2-7ca8d1d4cef5" />
 # <img width="1364" height="1516" alt="DetailSayfası" src="https://github.com/user-attachments/assets/321ab52e-0cc7-461d-9b6f-22dbe2e97ef0" />
