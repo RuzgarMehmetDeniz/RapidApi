@@ -17,7 +17,6 @@ namespace Project6RapidApi.Controllers
         public IActionResult VOYAGER() => View();
         public IActionResult ATLAS() => View();
 
-
         public IActionResult Index(string city, string arrival, string departure, string guests)
         {
             ViewBag.city = city;
