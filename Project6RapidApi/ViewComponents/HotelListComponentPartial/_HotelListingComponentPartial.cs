@@ -18,7 +18,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
         {
             var client = _httpClientFactory.CreateClient();
             var values = new List<ResultHotelDto>();
-            string apiKey = "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44"; // Tek merkezden yönetim
+            string apiKey = "apikey"; // Tek merkezden yönetim
 
             // 1. ADIM: Güvenlik Kontrolü
             if (string.IsNullOrEmpty(city)) return View(values);

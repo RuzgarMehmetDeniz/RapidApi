@@ -25,7 +25,7 @@ namespace Project6RapidApi.ViewComponents.HotelListComponentPartial
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(requestUri),
                 Headers = {
-                    { "x-rapidapi-key", "beccc441a2msh90a3da96f122adap1b10c9jsnb1cc07e1fa44" },
+                    { "x-rapidapi-key", "apikey" },
                     { "x-rapidapi-host", "booking-com.p.rapidapi.com" },
                 },
             };

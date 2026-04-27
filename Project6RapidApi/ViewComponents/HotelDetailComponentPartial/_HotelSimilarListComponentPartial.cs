@@ -12,17 +12,12 @@ namespace Project6RapidApi.ViewComponents.Hotel
         {
             _httpClientFactory = httpClientFactory;
         }
-
-        // cityId: Booking'in beklediği dest_id (Örn: -126693)
-        // cityName: Filtreleme için kullanılacak şehir adı (Örn: "Paris")
         public async Task<IViewComponentResult> InvokeAsync(string cityId, string cityName)
         {
-            // 1. Dinamik Tarih Ayarı (Şu anki zamana göre 1 hafta sonrası için ayarlandı)
             string checkin = DateTime.Now.AddDays(7).ToString("yyyy-MM-dd");
             string checkout = DateTime.Now.AddDays(12).ToString("yyyy-MM-dd");
 
-            // Eğer dışarıdan bir cityId gelmezse varsayılan bir ID ata
-            var finalDestId = string.IsNullOrEmpty(cityId) ? "-126693" : cityId;
+            var finalDestId = string.IsNullOrEmpty(cityId);
 
             var client = _httpClientFactory.CreateClient();
             var requestUri = $"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels" +
